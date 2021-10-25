@@ -1,112 +1,137 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- * @flow strict-local
- */
-
-import React from 'react';
-import type {Node} from 'react';
+import React, { useState } from "react";
+import { StyleSheet, ToastAndroid } from 'react-native'
 import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
-} from 'react-native';
-
+  NavigationContainer,
+  DefaultTheme as NavigationDefaultTheme,
+  DarkTheme as NavigationDarkTheme
+} from "@react-navigation/native";
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import auth from '@react-native-firebase/auth';
+import firestore from '@react-native-firebase/firestore';
 import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+  Provider as PaperProvider,
+  DefaultTheme as PaperDefaultTheme,
+  DarkTheme as PaperDarkTheme
+} from 'react-native-paper';
 
-const Section = ({children, title}): Node => {
-  const isDarkMode = useColorScheme() === 'dark';
+import SignInScreen from "./src/screens/authScreens/SignInScreen";
+import SignUpScreen from "./src/screens/authScreens/SignUpScreen";
+import SplashScreen from "./src/screens/authScreens/SplashScreen";
+import { USER_TYPE } from "./src/global/constants";
+import MainScreen from "./src/screens/mainScreens/MainScreen";
+
+const Stack = createNativeStackNavigator();
+
+function AppStack(props) {
   return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
-  );
-};
+    <Stack.Navigator style={styles.container} screenOptions={{
+      headerShown: false,
+    }}>
+      {props.screens}
+    </Stack.Navigator>
+  )
+}
 
-const App: () => Node = () => {
-  const isDarkMode = useColorScheme() === 'dark';
+export default function App() {
 
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
+  const [authState, setAuthState] = useState('INITIAL');
+  const [isDarkTheme, setIsDarkTheme] = React.useState(false);
+
+  const CustomDefaultTheme = {
+    ...NavigationDefaultTheme,
+    ...PaperDefaultTheme,
+    colors: {
+      ...NavigationDefaultTheme.colors,
+      ...PaperDefaultTheme.colors,
+      background: '#ffffff',
+      text: '#333333',
+    }
+  }
+
+  const CustomDarkTheme = {
+    ...NavigationDarkTheme,
+    ...PaperDarkTheme,
+    colors: {
+      ...NavigationDarkTheme.colors,
+      ...PaperDarkTheme.colors,
+      background: '#333333',
+      text: '#ffffff'
+    }
+  }
+
+  const theme = isDarkTheme ? CustomDarkTheme : CustomDefaultTheme;
+
+  let screens = <>
+    <Stack.Screen name="SplashScreen" component={SplashScreen} />
+  </>;
+
+  const onCreateUser = async (email, password) => {
+    await auth().createUserWithEmailAndPassword(email, password)
+      .then(authUser => {
+        firestore().collection('users').doc(authUser.user.uid).set({ type: USER_TYPE.USER })
+          .then(() => setAuthState(USER_TYPE.USER));
+      }).catch(error => {
+        if (error.code === 'auth/invalid-email') {
+          ToastAndroid.show("Email/password is not correct!", ToastAndroid.SHORT);
+        }
+        console.log(error);
+      })
+  }
+
+  const onSignIn = async (email, password) => {
+    await auth().signInWithEmailAndPassword(email, password)
+      .then(() => console.log('OK'))
+      .catch(error => {
+        if (error.code === 'auth/user-not-found') {
+          ToastAndroid.show("Email/password is not correct!", ToastAndroid.SHORT);
+        }
+        console.log(error);
+      })
   };
 
+
+  auth().onAuthStateChanged(async user => {
+    if (!user) {
+      setAuthState('UNAUTHORIZED');
+    } else {
+      const userDb = await firestore().collection('users').doc(user.uid).get();
+      if (userDb.get('type') === USER_TYPE.USER) {
+        setAuthState(USER_TYPE.USER);
+      } else {
+        setAuthState(USER_TYPE.ADMIN);
+      }
+    }
+  });
+
+  if (authState === 'INITIAL') {
+    screens = <>
+      <Stack.Screen name="SplashScreen" component={SplashScreen} />
+    </>;
+  } else if (authState === 'UNAUTHORIZED') {
+    screens = <>
+      <Stack.Screen name="SignIn">
+        {props => <SignInScreen {...props} onSignIn={onSignIn} />}
+      </Stack.Screen>
+      <Stack.Screen name="SignUp">
+        {props => <SignUpScreen {...props} onCreateUser={onCreateUser} />}
+      </Stack.Screen>
+    </>;
+  } else {
+    screens = <>
+      <Stack.Screen name="MainScreen" component={MainScreen} />
+    </>;
+  }
+
   return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.js</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+    <PaperProvider theme={theme}>
+      <NavigationContainer>
+        <AppStack screens={screens} />
+      </NavigationContainer>
+    </PaperProvider>
   );
-};
+}
 
 const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
-  },
-});
+  container: { flex: 1 }
+})
 
-export default App;
