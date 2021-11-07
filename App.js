@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { StyleSheet, ToastAndroid } from 'react-native'
+import { Animated, Dimensions, StyleSheet, ToastAndroid, View, TouchableOpacity, Image, Text } from 'react-native';
+import { useRef } from 'react';
 import {
   NavigationContainer,
   DefaultTheme as NavigationDefaultTheme,
@@ -13,27 +14,26 @@ import {
   DefaultTheme as PaperDefaultTheme,
   DarkTheme as PaperDarkTheme
 } from 'react-native-paper';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import Icon from 'react-native-vector-icons/FontAwesome5';
 
+import plus from './src/assets/icon/plus.png';
 import SignInScreen from "./src/screens/authScreens/SignInScreen";
 import SignUpScreen from "./src/screens/authScreens/SignUpScreen";
 import SplashScreen from "./src/screens/authScreens/SplashScreen";
 import { USER_TYPE } from "./src/global/constants";
 import MainScreen from "./src/screens/mainScreens/MainScreen";
+import UserProfileScreen from "./src/screens/mainScreens/UserProfileScreen";
+import SearchScreen from "./src/screens/mainScreens/SearchScreen";
+import CreateRecipeScreen from "./src/screens/mainScreens/CreateRecipeScreen";
+import NotificationScreen from "./src/screens/mainScreens/NotificationScreen";
+import DetailScreen from "./src/screens/mainScreens/DetailScreen";
+
 
 const Stack = createNativeStackNavigator();
-
-function AppStack(props) {
-  return (
-    <Stack.Navigator style={styles.container} screenOptions={{
-      headerShown: false,
-    }}>
-      {props.screens}
-    </Stack.Navigator>
-  )
-}
+const Tab = createBottomTabNavigator();
 
 export default function App() {
-
   const [authState, setAuthState] = useState('INITIAL');
   const [isDarkTheme, setIsDarkTheme] = React.useState(false);
 
@@ -61,9 +61,7 @@ export default function App() {
 
   const theme = isDarkTheme ? CustomDarkTheme : CustomDefaultTheme;
 
-  let screens = <>
-    <Stack.Screen name="SplashScreen" component={SplashScreen} />
-  </>;
+  let screens = <Stack.Screen name="SplashScreen" component={SplashScreen} />
 
   const onCreateUser = async (email, password) => {
     await auth().createUserWithEmailAndPassword(email, password)
@@ -104,10 +102,10 @@ export default function App() {
   });
 
   if (authState === 'INITIAL') {
-    screens = <>
-      <Stack.Screen name="SplashScreen" component={SplashScreen} />
-    </>;
+    screens = <Stack.Screen name="SplashScreen" component={SplashScreen} />
+
   } else if (authState === 'UNAUTHORIZED') {
+
     screens = <>
       <Stack.Screen name="SignIn">
         {props => <SignInScreen {...props} onSignIn={onSignIn} />}
@@ -115,23 +113,208 @@ export default function App() {
       <Stack.Screen name="SignUp">
         {props => <SignUpScreen {...props} onCreateUser={onCreateUser} />}
       </Stack.Screen>
-    </>;
+    </>
   } else {
-    screens = <>
-      <Stack.Screen name="MainScreen" component={MainScreen} />
-    </>;
+    screens =
+      <>
+        <Stack.Screen
+          name="Home"
+          component={Home}
+          options={{ headerShown: false }}
+        />
+
+        <Stack.Screen name="Detail">
+          {props => <DetailScreen {...props} />}
+        </Stack.Screen>
+      </>
+
   }
 
   return (
     <PaperProvider theme={theme}>
-      <NavigationContainer>
-        <AppStack screens={screens} />
+      <NavigationContainer style={styles.container}>
+        <Stack.Navigator style={styles.container} screenOptions={{
+          headerShown: false,
+        }}>
+          {screens}
+        </Stack.Navigator>
       </NavigationContainer>
     </PaperProvider>
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1 }
-})
+function Home() {
+  const tabOffsetValue = useRef(new Animated.Value(0)).current;
 
+  return (
+    <Tab.Navigator screenOptions={{
+      headerShown: false,
+      showLabel: false,
+      tabBarShowLabel: false,
+      // Floating Tab Bar...
+      style: {
+        backgroundColor: 'white',
+        position: 'absolute',
+        bottom: 50,
+        marginHorizontal: 20,
+        // Max Height...
+        height: 60,
+        borderRadius: 10,
+        // Shadow...
+        shadowColor: '#000',
+        shadowOpacity: 0.06,
+        shadowOffset: {
+          width: 10,
+          height: 10
+        },
+        paddingHorizontal: 20,
+      }
+    }}>
+      <Tab.Screen name={"Main"} component={MainScreen} options={{
+        tabBarIcon: ({ focused }) => (
+          <View style={{
+            // centring Tab Button...
+            position: 'absolute',
+            top: 12
+          }}>
+            <Icon
+              name="home"
+              size={24}
+              color={focused ? '#029c59' : 'gray'}
+            ></Icon>
+          </View>
+        )
+      }} listeners={({ navigation, route }) => ({
+        // Onpress Update....
+        tabPress: e => {
+          Animated.spring(tabOffsetValue, {
+            toValue: 0,
+            useNativeDriver: true
+          }).start();
+        }
+      })}></Tab.Screen>
+
+      <Tab.Screen name={"Search"} component={SearchScreen} options={{
+        tabBarIcon: ({ focused }) => (
+          <View style={{
+            // centring Tab Button...
+            position: 'absolute',
+            top: 12
+          }}>
+            <Icon
+              name="search"
+              size={24}
+              color={focused ? '#029c59' : 'gray'}
+            ></Icon>
+          </View>
+        )
+      }} listeners={({ navigation, route }) => ({
+        // Onpress Update....
+        tabPress: e => {
+          Animated.spring(tabOffsetValue, {
+            toValue: getWidth(),
+            useNativeDriver: true
+          }).start();
+        }
+      })}></Tab.Screen>
+
+
+      <Tab.Screen name={"CreateRecipe"} component={CreateRecipeScreen} options={{
+        tabBarIcon: ({ focused }) => (
+          <View style={{
+            width: 55,
+            height: 55,
+            backgroundColor: '#029c59',
+            borderRadius: 30,
+            justifyContent: 'center',
+            alignItems: 'center',
+            marginBottom: Platform.OS == "android" ? 50 : 30
+          }}>
+            <Icon
+              name="plus"
+              size={24}
+              color='white'
+            ></Icon>
+          </View>
+        )
+      }}
+        listeners={({ navigation, route }) => ({
+          // Onpress Update....
+          tabPress: e => {
+            Animated.spring(tabOffsetValue, {
+              toValue: getWidth() * 3,
+              useNativeDriver: true
+            }).start();
+          }
+        })}></Tab.Screen>
+
+      <Tab.Screen name={"Notifications"} component={NotificationScreen} options={{
+        tabBarIcon: ({ focused }) => (
+          <View style={{
+            // centring Tab Button...
+            position: 'absolute',
+            top: 12
+          }}>
+            <Icon
+              name="bell"
+              size={24}
+              color={focused ? '#029c59' : 'gray'}
+            ></Icon>
+          </View>
+        )
+      }} listeners={({ navigation, route }) => ({
+        // Onpress Update....
+        tabPress: e => {
+          Animated.spring(tabOffsetValue, {
+            toValue: getWidth() * 3,
+            useNativeDriver: true
+          }).start();
+        }
+      })}></Tab.Screen>
+
+      <Tab.Screen name={"UserProfile"} component={UserProfileScreen} options={{
+        tabBarIcon: ({ focused }) => (
+          <View style={{
+            // centring Tab Button...
+            position: 'absolute',
+            top: 12
+          }}>
+            <Icon
+              name="user-alt"
+              size={24}
+              color={focused ? '#029c59' : 'gray'}
+            ></Icon>
+          </View>
+        )
+      }} listeners={({ navigation, route }) => ({
+        // Onpress Update....
+        tabPress: e => {
+          Animated.spring(tabOffsetValue, {
+            toValue: getWidth() * 4,
+            useNativeDriver: true
+          }).start();
+        }
+      })}></Tab.Screen>
+
+    </Tab.Navigator>
+  );
+}
+
+function getWidth() {
+  let width = Dimensions.get("window").width
+
+  // Horizontal Padding = 20...
+  width = width - 80
+
+  // Total five Tabs...
+  return width / 5
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+});
