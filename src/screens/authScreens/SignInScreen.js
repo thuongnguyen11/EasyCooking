@@ -19,7 +19,7 @@ import { useTheme } from 'react-native-paper';
 const SignInScreen = ({ navigation, onSignIn }) => {
 
     const [data, setData] = React.useState({
-        username: '',
+        email: '',
         password: '',
         check_textInputChange: false,
         secureTextEntry: true,
@@ -33,19 +33,21 @@ const SignInScreen = ({ navigation, onSignIn }) => {
         if (val.trim().length >= 4) {
             setData({
                 ...data,
-                username: val,
+                email: val,
                 check_textInputChange: true,
                 isValidUser: true
             });
         } else {
             setData({
                 ...data,
-                username: val,
+                email: val,
                 check_textInputChange: false,
                 isValidUser: false
             });
         }
+
     }
+    
 
     const handlePasswordChange = (val) => {
         if (val.trim().length >= 6) {
@@ -98,7 +100,7 @@ const SignInScreen = ({ navigation, onSignIn }) => {
             >
                 <Text style={[styles.text_footer, {
                     color: colors.text
-                }]}>Username</Text>
+                }]}>Email</Text>
                 <View style={styles.action}>
                     <FontAwesome
                         name="user-o"
@@ -106,7 +108,7 @@ const SignInScreen = ({ navigation, onSignIn }) => {
                         size={20}
                     />
                     <TextInput
-                        placeholder="Your Username"
+                        placeholder="Your Email"
                         placeholderTextColor="#666666"
                         style={[styles.textInput, {
                             color: colors.text
@@ -185,7 +187,9 @@ const SignInScreen = ({ navigation, onSignIn }) => {
                 <View style={styles.button}>
                     <TouchableOpacity
                         style={styles.signIn}
-                        onPress={() => { onSignIn(data.username, data.password) }}
+                        onPress={() => { onSignIn(data.email, data.password) 
+                            console.log(data.email, data.password)
+                        }}
                     >
                         <LinearGradient
                             colors={['#23de8d', '#018f52']}

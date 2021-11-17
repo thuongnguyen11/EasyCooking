@@ -16,8 +16,8 @@ import {
 } from 'react-native-paper';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/FontAwesome5';
+import { ToastProvider } from 'react-native-toast-notifications'
 
-import plus from './src/assets/icon/plus.png';
 import SignInScreen from "./src/screens/authScreens/SignInScreen";
 import SignUpScreen from "./src/screens/authScreens/SignUpScreen";
 import SplashScreen from "./src/screens/authScreens/SplashScreen";
@@ -119,9 +119,9 @@ export default function App() {
       <>
         <Stack.Screen
           name="Home"
-          component={Home}
-          options={{ headerShown: false }}
-        />
+          options={{ headerShown: false }}>
+          {props => <Home {...props} />}
+        </Stack.Screen>
 
         <Stack.Screen name="Detail">
           {props => <DetailScreen {...props} />}
@@ -131,15 +131,82 @@ export default function App() {
   }
 
   return (
-    <PaperProvider theme={theme}>
-      <NavigationContainer style={styles.container}>
-        <Stack.Navigator style={styles.container} screenOptions={{
-          headerShown: false,
-        }}>
-          {screens}
-        </Stack.Navigator>
-      </NavigationContainer>
-    </PaperProvider>
+    <ToastProvider
+      offsetTop={310}
+      placement="top"
+      renderType={{
+        custom_toast: (toast) => (
+          <View
+            style={{
+              maxWidth: "85%",
+              paddingHorizontal: 30,
+              paddingVertical: 30,
+              backgroundColor: "#d6b704",
+              marginVertical: 4,
+              borderRadius: 8,
+              borderLeftColor: "#00C851",
+              borderLeftWidth: 6,
+              justifyContent: "center",
+              paddingLeft: 16,
+            }}
+          >
+            <Text
+              style={{
+                fontSize: 18,
+                color: "#000",
+                fontWeight: "bold",
+              }}
+            >
+              {toast.data.title}
+            </Text>
+            <Text style={{ color: "#fff", marginTop: 2, fontSize: 16 }}>{toast.message}</Text>
+          </View>
+        ),
+        with_close_button: (toast) => (
+          <View
+            style={{
+              maxWidth: "85%",
+              paddingVertical: 10,
+              backgroundColor: "#fff",
+              marginVertical: 4,
+              borderRadius: 8,
+              borderLeftColor: "#00C851",
+              borderLeftWidth: 6,
+              justifyContent: "center",
+              paddingHorizontal: 16,
+              flexDirection: "row",
+            }}
+          >
+            <Text style={{ color: "#a3a3a3", marginRight: 16 }}>{toast.message}</Text>
+            <TouchableOpacity
+              onPress={() => toast.onHide()}
+              style={{
+                marginLeft: "auto",
+                width: 25,
+                height: 25,
+                borderRadius: 5,
+                backgroundColor: "#333",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <Text style={{ color: "#fff", fontWeight: "500", marginBottom: 2.5 }}>
+                x
+              </Text>
+            </TouchableOpacity>
+          </View>
+        ),
+      }}>
+      <PaperProvider theme={theme}>
+        <NavigationContainer style={styles.container}>
+          <Stack.Navigator style={styles.container} screenOptions={{
+            headerShown: false,
+          }}>
+            {screens}
+          </Stack.Navigator>
+        </NavigationContainer>
+      </PaperProvider>
+    </ToastProvider>
   );
 }
 
