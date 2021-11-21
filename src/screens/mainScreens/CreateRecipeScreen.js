@@ -80,7 +80,8 @@ const CreateRecipeScreen = ({ navigation }) => {
             };
 
             setLoading(true);
-            createRecipe(recipe, () => {
+
+            const callback = () => {
                 setLoading(false);
 
                 toast.show("Bài đăng của bạn sẽ được phê duyệt trong vòng 24 giờ.", {
@@ -89,9 +90,10 @@ const CreateRecipeScreen = ({ navigation }) => {
                     data: {
                         title: "Đang chờ phê duyệt",
                     },
-                })
+                });
+            };
 
-            });
+            createRecipe(recipe, callback);
 
             return;
 
@@ -116,6 +118,7 @@ const CreateRecipeScreen = ({ navigation }) => {
                 isValidDishImage: false
             });
         } else {
+            setDishImage(value.uri);
             setInput({
                 ...input,
                 isValidDishImage: true

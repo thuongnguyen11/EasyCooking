@@ -1,50 +1,44 @@
 import React, { useState } from "react";
-import { Dimensions, FlatList, Image, Pressable, ScrollView, StyleSheet, Text, View} from "react-native";
-import themes from "../../config/themes";
-import Tabcontent from "./TabContent";
+import { Dimensions, FlatList, Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import themes from "../config/themes";
+import RecipeItem from "./RecipeItem";
 
 const w = Dimensions.get('screen').width;
-const tabs = ['All recipes', 'Meat', 'Salads', 'Soups']
 
-const TabRecipe = ({onPress}) => {
+const RecipesList = ({ onPress, recipes }) => {
     const [selected, setSelected] = useState(0);
 
-    const onScroll = ({nativeEvent}) => {
+    const onScroll = ({ nativeEvent }) => {
         const index = Math.round(nativeEvent.contentOffset.x / (w - 20));
         setSelected(index);
     }
 
+    const renderItem = (recipe) => (
+        <RecipeItem onPress={onPress} recipe={recipe} />
+    );
+
     return (
         <View style={styles.container}>
-            <View style={styles.header}>
-                {tabs.map((e, i) => (
-                    <Pressable key={i} onPress={() => setSelected(i)}>
-                        <Text style={styles.title,
-                            selected == i && { color: themes.colors.main }}>
-                            {e}
-                        </Text>
-                        {selected == i && <View style={styles.line} />}
-                    </Pressable>
-                ))}
-            </View>
-            <ScrollView 
+            <ScrollView
                 horizontal
                 pagingEnabled
                 onScroll={onScroll}
                 snapToAlignment='center'
                 decelerationRate='fast' >
-                <Tabcontent onPress={onPress}/>
-                <Tabcontent onPress={onPress}/>
-                <Tabcontent onPress={onPress}/>
-                <Tabcontent onPress={onPress}/>
+                <View style={styles.itemScroll} >
+                    <FlatList
+                        data={recipes}
+                        listKey={(item) => item.tracking_code.toString()}
+                        scrollEnabled={false}
+                        renderItem={renderItem}
+                    />
+                </View>
             </ScrollView>
-            
-
         </View>
     )
 }
 
-export default TabRecipe;
+export default RecipesList;
 
 const styles = StyleSheet.create({
     container: {
@@ -79,13 +73,14 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
     },
-    line: {
-        width: 30,
-        height: 2,
-        backgroundColor: themes.colors.main,
-        alignSelf: 'center',
-        marginTop: 3,
-    },
+
+    // line: {
+    //     width: 30,
+    //     height: 2,
+    //     backgroundColor: themes.colors.main,
+    //     alignSelf: 'center',
+    //     marginTop: 3,
+    // },
     image: {
         width: w / 3.8,
         height: w / 3.8,
@@ -114,6 +109,8 @@ const styles = StyleSheet.create({
         right: 15,
         top: 1,
     },
-
+    itemScroll: {
+        width: w - 30,
+    },
 
 })

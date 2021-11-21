@@ -1,28 +1,34 @@
 import React from "react";
+import { useNavigation } from "@react-navigation/core";
 import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import themes from "../../config/themes";
+import themes from "../config/themes";
 
 const RecipePopular = ({ onPress }) => {
+    const navigation = useNavigation();
+    const onPessButtonViewAll = () => {
+        navigation.navigate('MostPopular');
+    }
+
     const renderItem = (i) => {
         return (
             <Pressable style={styles.itemContainer} key={i} onPress={onPress} >
-                <Image style={styles.image} source={require("../../assets/icon/img1.png")} />
+                <Image style={styles.image} source={require("../assets/icon/img1.png")} />
                 <View style={styles.cardItem}>
                     <Text style={styles.titleItem}>Avocado Toast</Text>
                     <View style={styles.starCon}>
                         {Array(5)
                             .fill(0)
                             .map((_, index) => (
-                                <Image key={index} style={styles.star} source={require("../../assets/icon/star.png")} />))}
+                                <Image key={index} style={styles.star} source={require("../assets/icon/star.png")} />))}
                     </View>
 
                     <View style={styles.footerItem}>
-                        <Image source={require("../../assets/icon/clock.png")} />
-                        <Text style={styles.footerItemText}>5 min</Text>
+                        <Image source={require("../assets/icon/clock.png")} />
+                        <Text style={styles.footerItemText}>5 phút</Text>
                     </View>
                 </View>
                 <Pressable style={styles.buttonHeart} >
-                    <Image source={require("../../assets/icon/heart.png")}
+                    <Image source={require("../assets/icon/heart.png")}
                         style={styles.iconHeart}
                         resizeMode="contain" />
                 </Pressable>
@@ -33,9 +39,9 @@ const RecipePopular = ({ onPress }) => {
     return (
         <View style={styles.container}>
             <View style={styles.header}>
-                <Text style={styles.title}>Most popular</Text>
+                <Text style={styles.title}>Phổ biến nhất</Text>
                 <Pressable>
-                    <Text style={styles.ViewAll}>View All</Text>
+                    <Text style={styles.ViewAll} onPress={onPessButtonViewAll}>Xem tất cả</Text>
                 </Pressable>
             </View>
             <ScrollView

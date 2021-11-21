@@ -28,6 +28,7 @@ import SearchScreen from "./src/screens/mainScreens/SearchScreen";
 import CreateRecipeScreen from "./src/screens/mainScreens/CreateRecipeScreen";
 import NotificationScreen from "./src/screens/mainScreens/NotificationScreen";
 import DetailScreen from "./src/screens/mainScreens/DetailScreen";
+import MostPopularScreen from "./src/screens/mainScreens/MostPopularScreen";
 
 
 const Stack = createNativeStackNavigator();
@@ -125,6 +126,10 @@ export default function App() {
 
         <Stack.Screen name="Detail">
           {props => <DetailScreen {...props} />}
+        </Stack.Screen>
+
+        <Stack.Screen name="MostPopular">
+          {props => <MostPopularScreen {...props} />}
         </Stack.Screen>
       </>
 

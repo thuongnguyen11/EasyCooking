@@ -1,35 +1,88 @@
-import React from "react";
-import { Dimensions, Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
-import { useNavigation } from '@react-navigation/native';
+import React, { useEffect, useState } from "react";
+import { ActivityIndicator, Dimensions, Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
 import themes from '../../config/themes';
-
+import { getRecipeById } from "../../apis/FoodRecipeApi";
 
 const w = Dimensions.get("screen").width;
 
-const DetailScreen = () => {
-    const navigation = useNavigation();
-    const renderListIngredients = (index) => {
-        return (
-            <View style={styles.item} key={index}>
-                <Image
-                    style={styles.itemImg}
-                    resizeMode="contain"
-                    source={require('../../assets/icon/ing1.png')}
-                />
-                <Text style={styles.itemTitle}>Avocado</Text>
-                <Text style={styles.desc}>1/2 fruit</Text>
-            </View>
-        );
+const Step = ({ step, index }) => {
+    return (
+        <View>
+            <Text style={[styles.title, { color: themes.colors.main }]}>Bước {index + 1}</Text>
+            <Text style={styles.text}>
+                {step}
+            </Text>
+        </View>
+    );
+};
+
+const Ingredient = ({ ingredient, index }) => {
+    return (
+        <View style={styles.item} key={index}>
+
+            <Image
+                style={styles.itemImg}
+                resizeMode="contain"
+                source={{ uri: ingredient.image }}
+            />
+            <Text style={styles.itemTitle}>{ingredient.name}</Text>
+            <Text style={styles.desc}>{ingredient.amount}</Text>
+        </View>
+    )
+}
+
+const DetailScreen = ({ route, navigation }) => {
+    const [recipe, setRecipe] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const { id } = route.params;
+
+    useEffect(() => {
+        fetchRecipe();
+    }, []);
+
+    const fetchRecipe = () => {
+        setLoading(true);
+        getRecipeById(id, (data) => {
+            setRecipe(data);
+            setLoading(false);
+        })
     };
+
+
+    const renderListIngredients = () => {
+        const ingredients = recipe.ingredients?.map((ingredient, index) => {
+            return (
+                <Ingredient ingredient={ingredient} index={index} key={index}></Ingredient>
+            );
+        })
+        return ingredients;
+    };
+
+    const renderListSteps = () => {
+        const steps = recipe.steps?.map((step, index) => {
+            return (
+                <Step step={step} index={index} key={index} />
+            )
+        });
+
+        return steps;
+    }
 
     const onBack = () => navigation.goBack();
     return (
         <View style={styles.container}>
+            {loading ?
+                <View style={{ width: '100%', justifyContent: 'center', alignItems: 'center', height: '100%', position: 'absolute', zIndex: 99, backgroundColor: 'rgba(2, 156, 89, 0.2)' }}>
+                    <ActivityIndicator size="large" color="red" />
+                </View>
+                : null
+            }
+
             <Image
                 style={styles.image}
                 resizeMode="contain"
-                source={require('../../assets/icon/img1.png')}
+                source={{ uri: recipe.image }}
             />
             <View style={styles.header}>
                 <Pressable onPress={onBack}>
@@ -44,7 +97,7 @@ const DetailScreen = () => {
 
             <View style={styles.subHeader}>
                 <View style={styles.body}>
-                    <Text style={styles.titleItem}>Fish with couscous</Text>
+                    <Text style={styles.titleItem}>{recipe.name}</Text>
                     <View style={styles.starCon}>
                         {Array(5)
                             .fill(0)
@@ -58,9 +111,9 @@ const DetailScreen = () => {
                     <View style={styles.footerCard}>
                         <View style={styles.footerItem}>
                             <Image source={require("../../assets/icon/clock.png")} />
-                            <Text style={styles.footerItemText}>45 min</Text>
+                            <Text style={styles.footerItemText}>{recipe.time}</Text>
                         </View>
-                        <Text style={styles.footerItemText}>6 ingredients</Text>
+                        <Text style={styles.footerItemText}>{recipe.ingredients?.length} Thành phần</Text>
                     </View>
 
 
@@ -74,59 +127,11 @@ const DetailScreen = () => {
                 paddingBottom: 56,
             }}>
 
-                <Text style={styles.title}>Ingrdients</Text>
+                <Text style={styles.title}>Các thành phần</Text>
                 <ScrollView horizontal>
-                    {[1, 3, 4, 5].map((_, index) => renderListIngredients(index))}
+                    {renderListIngredients()}
                 </ScrollView>
-                <View>
-                    <Text style={[styles.title, { color: themes.colors.main }]}>Step 1</Text>
-                    <Text style={styles.text}>
-                        In a small bowl, combine avocado, lemon juice, salt, and pepper.
-                        Gently mash with the back of a fork.
-                    </Text>
-                </View>
-                <View>
-                    <Text style={[styles.title, { color: themes.colors.main }]}>Step 1</Text>
-                    <Text style={styles.text}>
-                        In a small bowl, combine avocado, lemon juice, salt, and pepper.
-                        Gently mash with the back of a fork.
-                    </Text>
-                </View>
-                <View>
-                    <Text style={[styles.title, { color: themes.colors.main }]}>Step 1</Text>
-                    <Text style={styles.text}>
-                        In a small bowl, combine avocado, lemon juice, salt, and pepper.
-                        Gently mash with the back of a fork.
-                    </Text>
-                </View>
-                <View>
-                    <Text style={[styles.title, { color: themes.colors.main }]}>Step 1</Text>
-                    <Text style={styles.text}>
-                        In a small bowl, combine avocado, lemon juice, salt, and pepper.
-                        Gently mash with the back of a fork.
-                    </Text>
-                </View>
-                <View>
-                    <Text style={[styles.title, { color: themes.colors.main }]}>Step 1</Text>
-                    <Text style={styles.text}>
-                        In a small bowl, combine avocado, lemon juice, salt, and pepper.
-                        Gently mash with the back of a fork.
-                    </Text>
-                </View>
-                <View>
-                    <Text style={[styles.title, { color: themes.colors.main }]}>Step 1</Text>
-                    <Text style={styles.text}>
-                        In a small bowl, combine avocado, lemon juice, salt, and pepper.
-                        Gently mash with the back of a fork.
-                    </Text>
-                </View>
-                <View>
-                    <Text style={[styles.title, { color: themes.colors.main }]}>Step 1</Text>
-                    <Text style={styles.text}>
-                        In a small bowl, combine avocado, lemon juice, salt, and pepper.
-                        Gently mash with the back of a fork.
-                    </Text>
-                </View>
+                {renderListSteps()}
             </ScrollView>
 
         </View>
@@ -144,7 +149,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
         flexDirection: 'row',
         width: '100%',
-        zIndex: 9999,
+        zIndex: 10,
     },
     subHeader: {
         marginTop: (w * 121) / 195 - 80,

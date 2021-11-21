@@ -1,37 +1,68 @@
 import { useNavigation } from "@react-navigation/core";
-import React from "react";
-import { StyleSheet, ScrollView, View, Text, Image, Button, TextInput, FlatList } from "react-native";
+import React, { useEffect, useState } from "react";
+import { StyleSheet, ScrollView, View, Text, Image, Button, TextInput, FlatList, ActivityIndicator } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import RecipePopular from "../../assets/components/RecipePopular";
-import TabRecipe from "../../assets/components/TabRecipe";
+import { getRecipes } from "../../apis/FoodRecipeApi";
+import RecipePopular from "../../components/RecipePopular";
+import RecipesList from "../../components/RecipesList";
 
 import themes from '../../config/themes';
 
-
 const MainScreen = () => {
+    const [recipes, setRecipes] = useState([]);
+    const [loading, setLoading] = useState(false);
+
     const navigation = useNavigation();
-    const onPressItem = () => {
-        navigation.navigate('Detail');
+    const onPressItem = (id) => {
+        navigation.navigate('Detail', { id });
     }
+
+    useEffect(() => {
+        fetchRecipes();
+    }, []);
+
+    const fetchRecipes = () => {
+        setLoading(true);
+        getRecipes((data) => {
+            setRecipes(data);
+            setLoading(false);
+        });
+    };
+
     return (
         <SafeAreaView style={styles.SafeAreaView}>
             <FlatList data={[]} style={styles.container}
                 renderItem={null}
                 ListFooterComponent={
                     <>
-                        <Text style={styles.title}>What would you like to cook?</Text>
+                        <View style={styles.titleGroup}>
+                            <Text style={styles.title}>Bạn muốn nấu món gì?</Text>
+                            <View style={styles.titleIconCooking}>
+                                <Image source={require('../../assets/icon/cooking4.png')}></Image>
+                            </View>
+                        </View>
                         <View style={styles.searchContainer}>
                             <View style={styles.iconSearch}>
                                 <Image source={require('../../assets/icon/search.png')}></Image>
                             </View>
-                            <TextInput style={styles.inputSearch} placeholder="Find a recipe"></TextInput>
+                            <TextInput style={styles.inputSearch} placeholder="Tìm kiếm công thức"></TextInput>
                             <View style={styles.filterButton}>
                                 <Image source={require('../../assets/icon/filter.png')}></Image>
                             </View>
                         </View>
 
                         <RecipePopular onPress={onPressItem} />
-                        <TabRecipe onPress={onPressItem} />
+
+                        <Text style={styles.titleRecipesList}>Gợi ý cho bạn</Text>
+                        <View>
+                            {loading ?
+                                <View style={{ width: '100%', justifyContent: 'center', alignItems: 'center', height: '100%', position: 'absolute', zIndex: 9, }}>
+                                    <ActivityIndicator size="large" color="red" />
+                                </View>
+                                : null
+                            }
+                            <RecipesList onPress={onPressItem} recipes={recipes} />
+                        </View>
                     </>
                 }>
 
@@ -42,14 +73,31 @@ const MainScreen = () => {
 export default MainScreen;
 
 const styles = StyleSheet.create({
+
     SafeAreaView: {
         flex: 1,
         backgroundColor: '#FFF',
     },
+    titleGroup: {
+        flexDirection: 'row',
+    },
     title: {
-        fontSize: 30,
+        fontSize: 36,
         fontWeight: '500',
-        color: '#41423F'
+        color: '#029c59',
+        textShadowColor: 'rgba(130, 237, 191, 0.9)',
+        textShadowOffset: { width: 2, height: 2 },
+        textShadowRadius: 7
+    },
+    titleIconCooking: {
+        position: 'absolute',
+        left: 60,
+        top: 25,
+    },
+    titleRecipesList: {
+        color: themes.colors.main,
+        fontSize: 20,
+        fontWeight: '600',
     },
     container: {
         flex: 1,

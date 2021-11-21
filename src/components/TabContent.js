@@ -1,6 +1,6 @@
 import React from "react";
 import { Dimensions, FlatList, Image, Pressable, StyleSheet, Text, View } from 'react-native';
-import themes from "../../config/themes";
+import themes from "../config/themes";
 
 const w = Dimensions.get('screen').width;
 
@@ -8,7 +8,7 @@ const Tabcontent = ({ onPress }) => {
     const renderItem = ({ item }) => {
         return (
             <Pressable style={styles.item} key={item} onPress={onPress}>
-                <Image style={styles.image} style={styles.image} source={require("../../assets/icon/all1.png")} />
+                <Image style={styles.image} style={styles.image} source={require("../assets/icon/all1.png")} />
                 <View style={styles.body}>
                     <Text style={styles.titleItem}>Fish with couscous</Text>
                     <View style={styles.starCon}>
@@ -17,19 +17,19 @@ const Tabcontent = ({ onPress }) => {
                             .map((_, index) => (
                                 <Image key={index}
                                     style={styles.star}
-                                    source={require("../../assets/icon/star.png")}
+                                    source={require("../assets/icon/star.png")}
                                 />
                             ))}
                     </View>
                     <View style={styles.footerCard}>
                         <View style={styles.footerItem}>
-                            <Image source={require("../../assets/icon/clock.png")} />
-                            <Text style={styles.footerItemText}>45 min</Text>
+                            <Image source={require("../assets/icon/clock.png")} />
+                            <Text style={styles.footerItemText}>45 Phút</Text>
                         </View>
-                        <Text style={styles.footerItemText}>6 ingredients</Text>
+                        <Text style={styles.footerItemText}>6 Thành phần</Text>
                     </View>
                     <Pressable style={styles.buttonHeart} >
-                        <Image source={require("../../assets/icon/heart.png")}
+                        <Image source={require("../assets/icon/heart.png")}
                             style={styles.iconHeart}
                             resizeMode="contain" />
                     </Pressable>
@@ -44,7 +44,7 @@ const Tabcontent = ({ onPress }) => {
                 listKey={(item) => item.tracking_code.toString()}
                 scrollEnabled={false}
                 renderItem={renderItem}
-                data={[1, 2, 3, 4]}
+                data={[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]}
             />
         </View>
 

@@ -12,31 +12,46 @@ const uploadImage = async (recipeId, ingredient) => {
             ...ingredient,
             image: null,
         };
+    } else {
+        const uri = ingredient.uri;
+
+        const fileExtension = uri.split('.').pop();
+
+        const id = shortid.generate();
+
+        const fileName = `${id}.${fileExtension}`;
+
+        const storageRef = storage().ref(`recipes/${recipeId}/${fileName}`);
+        await storageRef.putFile(uri);
+
+        const downloadURL = await storageRef.getDownloadURL();
+        delete ingredient['uri'];
+
+        return {
+            ...ingredient,
+            image: downloadURL
+        };
     }
-
-    const uri = ingredient.uri;
-
-    const fileExtension = uri.split('.').pop();
-
-    const id = shortid.generate();
-
-    const fileName = `${id}.${fileExtension}`;
-
-    const storageRef = storage().ref(`recipes/${recipeId}/${fileName}`);
-    await storageRef.putFile(uri);
-
-    const downloadURL = await storageRef.getDownloadURL();
-    delete ingredient['uri'];
-
-    return {
-        ...ingredient,
-        image: downloadURL
-    };
 };
 
 const uploadIngredientImages = async (recipeId, ingredients) => {
     return Promise.all(ingredients.map(ingredient => uploadImage(recipeId, ingredient)));
 };
+
+const uploadDishImage = async (recipeId, uri) => {
+    const fileExtension = uri.split('.').pop();
+
+    const id = shortid.generate();
+
+    const fileName = `${id}.${fileExtension}`;
+    const reference = storage().ref(`recipes/${recipeId}/${fileName}`);
+    await reference.putFile(uri);
+
+    const downloadURL = await reference.getDownloadURL();
+
+    return downloadURL;
+
+}
 
 export const createRecipe = async (recipe, onCreateRecipeSuccess) => {
     const result = await firestore().collection(COLLECTION_NAME.RECIPES).add(recipe);
@@ -55,17 +70,18 @@ export const createRecipe = async (recipe, onCreateRecipeSuccess) => {
     });
 }
 
-const uploadDishImage = async (recipeId, uri) => {
-    const fileExtension = uri.split('.').pop();
+export const getRecipes = async (onGetRecipesSuccess) => {
+    const snapshot = await firestore().collection(COLLECTION_NAME.RECIPES).get();
+    onGetRecipesSuccess(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+}
 
-    const id = shortid.generate();
+export const getRecipeById = async (id, onGetRecipeByIdSuccess) => {
+    const recipe = await firestore().collection(COLLECTION_NAME.RECIPES).doc(id).get();
+    onGetRecipeByIdSuccess(recipe.data());
 
-    const fileName = `${id}.${fileExtension}`;
-    const reference = storage().ref(`recipes/${recipeId}/${fileName}`);
-    await reference.putFile(uri);
-
-    const downloadURL = await reference.getDownloadURL();
-
-    return downloadURL;
-
+    // cach khac 
+    // firestore().collection(COLLECTION_NAME.RECIPES).doc(id).get()
+    // .then((recipe) => {
+    //     onGetRecipeByIdSuccess(recipe.data());
+    // })
 }
