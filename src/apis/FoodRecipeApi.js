@@ -1,8 +1,11 @@
 import storage from '@react-native-firebase/storage';
 import firestore from '@react-native-firebase/firestore';
 const shortid = require('shortid');
+import auth from '@react-native-firebase/auth';
 
-import { COLLECTION_NAME } from '../global/constants';
+import { COLLECTION_NAME, RECIPE_STATUS } from '../global/constants';
+import { getKeywords } from '../global/utilities';
+
 
 const uploadImage = async (recipeId, ingredient) => {
     if (!ingredient.uri) {
@@ -54,7 +57,10 @@ const uploadDishImage = async (recipeId, uri) => {
 }
 
 export const createRecipe = async (recipe, onCreateRecipeSuccess) => {
-    const result = await firestore().collection(COLLECTION_NAME.RECIPES).add(recipe);
+    const user = auth().currentUser;
+    const keywords = getKeywords(recipe.name);
+    const newRecipe = { ...recipe, status: RECIPE_STATUS.PENDING, keywords, uid: user.uid }
+    const result = await firestore().collection(COLLECTION_NAME.RECIPES).add(newRecipe);
 
     let dishImage;
 
@@ -65,6 +71,7 @@ export const createRecipe = async (recipe, onCreateRecipeSuccess) => {
     firestore().collection(COLLECTION_NAME.RECIPES).doc(result.id).update({
         ingredients: ingredientWithImages,
         image: dishImage,
+        createdAt: firestore.FieldValue.serverTimestamp(),
     }).then(() => {
         onCreateRecipeSuccess();
     });
@@ -84,4 +91,54 @@ export const getRecipeById = async (id, onGetRecipeByIdSuccess) => {
     // .then((recipe) => {
     //     onGetRecipeByIdSuccess(recipe.data());
     // })
+}
+
+export const searchRecipe = async (recipeName, onSearchRecipeSuccess) => {
+    const snapshot = await firestore().collection(COLLECTION_NAME.RECIPES)
+        .where('keywords', 'array-contains', recipeName)
+        .get();
+    onSearchRecipeSuccess(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+}
+
+export const updateFavoritesList = async (favorites, onUpdateFavoritesSuccess) => {
+    const user = auth().currentUser;
+    await firestore().collection(COLLECTION_NAME.USERS).doc(user.uid).update({
+        favorites: favorites,
+    });
+
+    onUpdateFavoritesSuccess();
+}
+
+export const getUserInformation = async (onGetUserInforSuccess) => {
+    const user = auth().currentUser;
+    const userInfor = await firestore().collection(COLLECTION_NAME.USERS).doc(user.uid).get();
+    onGetUserInforSuccess({ ...userInfor.data(), email: user.email });
+}
+
+export const updateUserInfor = async (userInfor, onUpdateUserInforSuccess) => {
+    const user = auth().currentUser;
+
+    const { favorites, type, email, ...cloned } = userInfor;
+
+    await firestore().collection(COLLECTION_NAME.USERS).doc(user.uid).update({ ...cloned });
+
+    onUpdateUserInforSuccess();
+}
+
+export const getRecipesFavorite = async (ids, onGetRecipesFavoriteSuccess) => {
+    let recipesFavorite = [];
+
+    const result = await Promise.all(ids.map(id => firestore().collection(COLLECTION_NAME.RECIPES).doc(id).get()));
+    recipesFavorite = result.map(r => ({ id: r.id, ...r.data() }));
+
+    onGetRecipesFavoriteSuccess(recipesFavorite);
+}
+
+
+export const getMyRecipes = async (onGetMyRecipesSuccess) => {
+    const user = auth().currentUser;
+    const snapshot = await firestore().collection(COLLECTION_NAME.RECIPES).where('uid', '==', user.uid).get();
+    const myRecipes = snapshot.docs.map(d => ({ ...d.data(), id: d.id, }));
+    
+    onGetMyRecipesSuccess(myRecipes);
 }

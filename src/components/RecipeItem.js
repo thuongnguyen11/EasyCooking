@@ -1,10 +1,12 @@
 import React from "react";
 import { Image, Pressable, Dimensions, StyleSheet, Text, View } from 'react-native';
+import { Icon } from 'react-native-elements';
+
 import themes from "../config/themes";
 
 const w = Dimensions.get('screen').width;
 
-const RecipeItem = ({ onPress, recipe }) => {
+const RecipeItem = ({ onPress, recipe, isFavorite }) => {
     return (
         <Pressable style={styles.item} key={recipe.item.id} onPress={() => onPress(recipe.item.id)}>
             <Image style={styles.image} style={styles.image} source={{
@@ -28,11 +30,14 @@ const RecipeItem = ({ onPress, recipe }) => {
                         <Text style={styles.footerItemText}>{recipe.item.time}</Text>
                     </View>
                     <Text style={styles.footerItemText}>{recipe.item.ingredients.length} Thành phần</Text>
+                    {/* <Text style={styles.footerItemText}>
+                        Ngày đăng: {new Date(recipe.item.createdAt.toDate()).toLocaleDateString()}
+                    </Text> */}
                 </View>
-                <Pressable style={styles.buttonHeart} >
-                    <Image source={require("../assets/icon/heart.png")}
-                        style={styles.iconHeart}
-                        resizeMode="contain" />
+                <Pressable style={styles.buttonHeart}>
+                    {isFavorite
+                        ? <Icon name='favorite' type='material' color='#029c59' />
+                        : <Icon name='favorite-border' type='material' color='#029c59' />}
                 </Pressable>
 
             </View>

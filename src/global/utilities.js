@@ -1,4 +1,6 @@
-export const removeVietnameseTones = (str) => {
+export const removeVietnameseTones = (input) => {
+    let str = input;
+
     str = str.replace(/à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ/g, "a");
     str = str.replace(/è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ/g, "e");
     str = str.replace(/ì|í|ị|ỉ|ĩ/g, "i");
@@ -27,4 +29,18 @@ export const removeVietnameseTones = (str) => {
     return str;
 }
 
-// REGEX 
+export const getKeywords = (input) => {
+    const nonVietnameseTone = removeVietnameseTones(input).split(' ').map(w => w.toLowerCase());
+    const keywords = [];
+
+    const n = nonVietnameseTone.length;
+    for (let i = 0; i < n; i++) {
+        for (let j = 0; j <= i; j++) {
+            const keywork = nonVietnameseTone.slice(j, n - i + j).join(' ');
+            keywords.push(keywork);
+        }
+    }
+
+    return keywords;
+}
+

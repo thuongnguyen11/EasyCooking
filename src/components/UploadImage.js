@@ -1,12 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import Icon from 'react-native-vector-icons/FontAwesome5';
 
 import {
     View,
     Image,
     StyleSheet,
     TouchableOpacity,
-    ImageBackground,
     Text
 } from 'react-native';
 import { launchImageLibrary } from 'react-native-image-picker';
@@ -16,9 +14,7 @@ const UploadImage = ({ dishImage, onDishImagePicked }) => {
     const [selectedImage, setSelectedImage] = useState();
 
     useEffect(() => {
-        if (dishImage) {
-            setSelectedImage({ uri: dishImage });
-        }
+        setSelectedImage(dishImage);
     }, [dishImage])
 
     const pickImageHandler = () => {
@@ -30,8 +26,8 @@ const UploadImage = ({ dishImage, onDishImagePicked }) => {
                 else if (response.didCancel) {
                     console.log("cancel");
                 } else {
-                    setSelectedImage({ uri: response.assets[0].uri });
-                    onDishImagePicked({ uri: response.assets[0].uri });
+                    setSelectedImage(response.assets[0].uri);
+                    onDishImagePicked(response.assets[0].uri);
                 }
             }
         )
@@ -42,7 +38,7 @@ const UploadImage = ({ dishImage, onDishImagePicked }) => {
             onPress={pickImageHandler}>
             <View style={[styles.imageContainer, selectedImage ? null : styles.dashed]}>
                 <Text style={styles.titleImage}>Tải ảnh lên</Text>
-                <Image source={selectedImage} style={styles.previewImage} />
+                <Image source={{ uri: selectedImage }} style={styles.previewImage} />
             </View>
 
         </TouchableOpacity>

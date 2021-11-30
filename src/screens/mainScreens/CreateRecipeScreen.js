@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from "react";
-import { useNavigation } from "@react-navigation/core";
+import React, { useState, useEffect, useRef } from "react";
 
 import {
     View, Text,
@@ -10,7 +9,6 @@ import {
     ScrollView,
 } from "react-native";
 import { Button } from 'react-native-elements';
-import { StackActions } from '@react-navigation/native';
 import * as Animatable from 'react-native-animatable';
 import { Picker } from '@react-native-picker/picker';
 
@@ -19,12 +17,11 @@ import Icon from 'react-native-vector-icons/FontAwesome5';
 const shortid = require('shortid');
 import { useToast } from "react-native-toast-notifications";
 
-
 import themes from '../../config/themes';
 import bgimage from '../../assets/image/bg7.png';
 import CustomImagePicker from "../../components/CustomImagePicker";
-import { createRecipe } from "../../apis/FoodRecipeApi";
 import UploadImage from "../../components/UploadImage";
+import { createRecipe } from '../../apis/FoodRecipeApi';
 
 
 const CreateRecipeScreen = ({ navigation }) => {
@@ -50,7 +47,6 @@ const CreateRecipeScreen = ({ navigation }) => {
     const [input, setInput] = useState({
         isValidDishImage: false,
         isValidName: false,
-        isValidCategory: false,
         isValidDescription: false,
         isValidIngredientName: false,
         isValidIngredientAmount: false,
@@ -58,6 +54,32 @@ const CreateRecipeScreen = ({ navigation }) => {
         isValidTime: false,
         isSubmited: false,
     });
+
+    const resetState = () => {
+        setLoading(false);
+        setDishImage(null);
+        setName('');
+        setCategory('Món xào');
+        setDescription('');
+        setTime('');
+        setIngredients([{ id: shortid.generate(), name: '', amount: 0, uri: null }]);
+        setSteps([{ id: shortid.generate(), step: '' }]);
+
+        setInput({
+            isValidDishImage: false,
+            isValidName: false,
+            isValidDescription: false,
+            isValidIngredientName: false,
+            isValidIngredientAmount: false,
+            isValidStep: false,
+            isValidTime: false,
+            isSubmited: false,
+        });
+    }
+
+    const onChangeCategory = (value) => {
+        setCategory(value);
+    }
 
     const onSubmit = async () => {
 
@@ -91,6 +113,10 @@ const CreateRecipeScreen = ({ navigation }) => {
                         title: "Đang chờ phê duyệt",
                     },
                 });
+
+                resetState();
+
+                navigation.goBack();
             };
 
             createRecipe(recipe, callback);
@@ -118,7 +144,7 @@ const CreateRecipeScreen = ({ navigation }) => {
                 isValidDishImage: false
             });
         } else {
-            setDishImage(value.uri);
+            setDishImage(value);
             setInput({
                 ...input,
                 isValidDishImage: true
@@ -127,6 +153,8 @@ const CreateRecipeScreen = ({ navigation }) => {
     }
 
     const handleValidName = (value) => {
+        console.log(value);
+
         setInput({
             ...input,
             isSubmited: false,
@@ -146,6 +174,7 @@ const CreateRecipeScreen = ({ navigation }) => {
     }
 
     const handleValidCategory = (value) => {
+        console.log(value);
         setInput({
             ...input,
             isSubmited: false,
@@ -411,7 +440,7 @@ const CreateRecipeScreen = ({ navigation }) => {
                     ListFooterComponent={
                         <>
                             <Text style={styles.title}>Tạo bài đăng</Text>
-                            <UploadImage onDishImagePicked={(uri) => handleValidDishImage(uri)}></UploadImage>
+                            <UploadImage dishImage={dishImage} onDishImagePicked={(uri) => handleValidDishImage(uri)}></UploadImage>
                             {showValidationMessage('isValidDishImage') ?
                                 errorMsg('Hình ảnh') : null
                             }
@@ -420,6 +449,7 @@ const CreateRecipeScreen = ({ navigation }) => {
                                 <TextInput
                                     style={[styles.input, showValidationMessage('isValidName') ? styles.borderInputError : null]}
                                     placeholder='Bún đậu mắm tôm'
+                                    value={name}
                                     onChangeText={name => setName(name)}
                                     onEndEditing={(e) => handleValidName(e.nativeEvent.text)}
                                 />
@@ -429,39 +459,35 @@ const CreateRecipeScreen = ({ navigation }) => {
                             </View>
                             <View>
                                 <Text style={styles.titleIttem}>Phân loại</Text>
-                                {/* <View style={styles.dropdownCategory}>
+                                <View style={styles.dropdownCategory}>
                                     <Picker
-                                    selectedValue={category}
-                                    style={{ height: 50, width: 200 }}
-                                    onValueChange={(itemValue, itemIndex) => setCategory(itemValue)}
-                                    onEndEditing={(e) => handleValidCategory(e.nativeEvent.text)}
-                                >
-                                    <Picker.Item label="Java" value="java" />
-                                    <Picker.Item label="JavaScript" value="js" />
-                                    <Picker.Item label="JavaScript" value="js" />
-                                    <Picker.Item label="JavaScript" value="js" />
-                                    <Picker.Item label="JavaScript" value="js" />
-                                    <Picker.Item label="JavaScript" value="js" />
-                                    <Picker.Item label="JavaScript" value="js" />
-                                    <Picker.Item label="JavaScript" value="js" />
-                                    <Picker.Item label="JavaScript" value="js" />
-                                    
-                                </Picker>
-                                </View> */}
-                                <TextInput
+                                        selectedValue={category}
+                                        style={styles.pickerCategory}
+                                        onValueChange={onChangeCategory}                                    >
+                                        <Picker.Item label="Món hấp" value="Món hấp" />
+                                        <Picker.Item label="Món luộc" value="Món luộc" />
+                                        <Picker.Item label="Món xào" value="Món xào" />
+                                        <Picker.Item label="Món chiên" value="Món chiên" />
+                                        <Picker.Item label="Khác" value="Khác" />
+
+                                    </Picker>
+                                </View>
+                                {/* <TextInput
                                     placeholder='Món nưóc'
+                                    value={category}
                                     style={[styles.input, showValidationMessage('isValidCategory') ? styles.borderInputError : null]}
                                     onChangeText={category => setCategory(category)}
                                     onEndEditing={(e) => handleValidCategory(e.nativeEvent.text)}
                                 />
                                 {showValidationMessage('isValidCategory') ?
                                     errorMsg('Phân loại') : null
-                                }
+                                } */}
                             </View>
                             <View>
                                 <Text style={styles.titleIttem}>Mô tả</Text>
                                 <View style={[styles.textArea, showValidationMessage('isValidDescription') ? styles.borderInputError : null]}>
                                     <TextInput
+                                        value={description}
                                         style={styles.input}
                                         multiline={true}
                                         numberOfLines={10}
@@ -501,6 +527,7 @@ const CreateRecipeScreen = ({ navigation }) => {
                                 <TextInput
                                     style={[styles.input, showValidationMessage('isValidTime') ? styles.borderInputError : null]}
                                     placeholder='1 giờ 15 phút'
+                                    value={time}
                                     onChangeText={time => setTime(time)}
                                     onEndEditing={(e) => handleValidTime(e.nativeEvent.text)}
                                 />
@@ -540,7 +567,6 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(2, 156, 89, 0.6)',
         flex: 1,
         paddingHorizontal: 18,
-
     },
     title: {
         fontSize: 30,
@@ -579,11 +605,21 @@ const styles = StyleSheet.create({
     textInput: {
         borderColor: '#f0f2f1',
     },
-    // dropdownCategory: {
-    //     flex: 1,
-    //     paddingTop: 40,
-    //     alignItems: "center"
-    // },
+    dropdownCategory: {
+        backgroundColor: '#f0f2f1',
+        borderRadius: 10,
+        width: 200,
+        height: 40,
+        justifyContent: 'center'
+        
+        
+    },
+    pickerCategory: {
+        height: 50,
+        width: 200,
+        color: '#000'
+    
+    },
     styledButtonSignUp: {
         backgroundColor: '#fff',
     },

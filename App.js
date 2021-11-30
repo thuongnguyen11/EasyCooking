@@ -29,6 +29,8 @@ import CreateRecipeScreen from "./src/screens/mainScreens/CreateRecipeScreen";
 import NotificationScreen from "./src/screens/mainScreens/NotificationScreen";
 import DetailScreen from "./src/screens/mainScreens/DetailScreen";
 import MostPopularScreen from "./src/screens/mainScreens/MostPopularScreen";
+import MyRecipeScreen from "./src/screens/mainScreens/MyRecipeScreen";
+import MyFavoriteScreen from "./src/screens/mainScreens/MyFavoriteScreen";
 
 
 const Stack = createNativeStackNavigator();
@@ -67,7 +69,8 @@ export default function App() {
   const onCreateUser = async (email, password) => {
     await auth().createUserWithEmailAndPassword(email, password)
       .then(authUser => {
-        firestore().collection('users').doc(authUser.user.uid).set({ type: USER_TYPE.USER })
+        firestore().collection('users').doc(authUser.user.uid)
+          .set({ type: USER_TYPE.USER, createdAt: firestore.FieldValue.serverTimestamp(), favorites: [] })
           .then(() => setAuthState(USER_TYPE.USER));
       }).catch(error => {
         if (error.code === 'auth/invalid-email') {
@@ -130,6 +133,14 @@ export default function App() {
 
         <Stack.Screen name="MostPopular">
           {props => <MostPopularScreen {...props} />}
+        </Stack.Screen>
+
+        <Stack.Screen name="MyRecipe">
+          {props => <MyRecipeScreen {...props} />}
+        </Stack.Screen>
+
+        <Stack.Screen name="MyFavorite">
+          {props => <MyFavoriteScreen {...props} />}
         </Stack.Screen>
       </>
 

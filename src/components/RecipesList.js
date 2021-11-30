@@ -1,11 +1,11 @@
 import React, { useState } from "react";
-import { Dimensions, FlatList, Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Dimensions, FlatList, Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import themes from "../config/themes";
 import RecipeItem from "./RecipeItem";
 
 const w = Dimensions.get('screen').width;
 
-const RecipesList = ({ onPress, recipes }) => {
+const RecipesList = ({ onPress, recipes, favorites, loading }) => {
     const [selected, setSelected] = useState(0);
 
     const onScroll = ({ nativeEvent }) => {
@@ -13,27 +13,41 @@ const RecipesList = ({ onPress, recipes }) => {
         setSelected(index);
     }
 
-    const renderItem = (recipe) => (
-        <RecipeItem onPress={onPress} recipe={recipe} />
-    );
+    const renderItem = (recipe) => {
+        return <RecipeItem
+            onPress={onPress}
+            recipe={recipe}
+            isFavorite={favorites?.includes(recipe.item.id)} />
+    };
 
     return (
         <View style={styles.container}>
-            <ScrollView
-                horizontal
-                pagingEnabled
-                onScroll={onScroll}
-                snapToAlignment='center'
-                decelerationRate='fast' >
-                <View style={styles.itemScroll} >
-                    <FlatList
-                        data={recipes}
-                        listKey={(item) => item.tracking_code.toString()}
-                        scrollEnabled={false}
-                        renderItem={renderItem}
-                    />
+            {loading ?
+                <View style={{ width: '100%', height: '100%', position: 'absolute', zIndex: 9 }}>
+                    <ActivityIndicator size="large" color="red" />
                 </View>
-            </ScrollView>
+                : null
+            }
+            {
+                !loading && recipes && recipes.length === 0
+                    ? <Text style={{ width: '100%', height: '100%', textAlign: 'center', textAlignVertical: 'center' }}>Khong tim thay ket qua</Text>
+                    : <ScrollView
+                        horizontal
+                        pagingEnabled
+                        onScroll={onScroll}
+                        snapToAlignment='center'
+                        decelerationRate='fast'>
+                        <View style={styles.itemScroll} >
+                            <FlatList
+                                data={recipes}
+                                listKey={(item) => item.tracking_code.toString()}
+                                scrollEnabled={false}
+                                renderItem={renderItem}
+                            />
+                        </View>
+                    </ScrollView>
+            }
+
         </View>
     )
 }
@@ -43,6 +57,7 @@ export default RecipesList;
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        minHeight: 100
     },
     title: {
         fontSize: 18,

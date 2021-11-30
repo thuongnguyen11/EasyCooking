@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { ActivityIndicator, Dimensions, Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
-
+import { Icon } from 'react-native-elements';
 import themes from '../../config/themes';
-import { getRecipeById } from "../../apis/FoodRecipeApi";
+import { getRecipeById, updateFavoritesList } from "../../apis/FoodRecipeApi";
 
 const w = Dimensions.get("screen").width;
 
@@ -23,7 +23,7 @@ const Ingredient = ({ ingredient, index }) => {
 
             <Image
                 style={styles.itemImg}
-                resizeMode="contain"
+                resizeMode="cover"
                 source={{ uri: ingredient.image }}
             />
             <Text style={styles.itemTitle}>{ingredient.name}</Text>
@@ -35,7 +35,10 @@ const Ingredient = ({ ingredient, index }) => {
 const DetailScreen = ({ route, navigation }) => {
     const [recipe, setRecipe] = useState([]);
     const [loading, setLoading] = useState(false);
-    const { id } = route.params;
+    const { id, favorites } = route.params;
+
+    const [favorite, isFavorite] = useState(favorites.includes(id));
+    const [tempFavorites, setTempFavorites] = useState([...favorites]);
 
     useEffect(() => {
         fetchRecipe();
@@ -47,6 +50,21 @@ const DetailScreen = ({ route, navigation }) => {
             setRecipe(data);
             setLoading(false);
         })
+    };
+
+    const toggleFavorite = () => {
+        isFavorite(!favorite);
+
+        let updated = [...tempFavorites];
+        if (updated.includes(id)) {
+            updated = updated.filter(r => r !== id);
+        } else {
+            updated.push(id);
+        }
+
+        updateFavoritesList(updated, () => {
+            setTempFavorites([...updated]);
+        });
     };
 
 
@@ -81,17 +99,18 @@ const DetailScreen = ({ route, navigation }) => {
 
             <Image
                 style={styles.image}
-                resizeMode="contain"
+                resizeMode="cover"
                 source={{ uri: recipe.image }}
             />
             <View style={styles.header}>
                 <Pressable onPress={onBack}>
                     <Image source={require('../../assets/icon/back.png')} />
                 </Pressable>
-                <Pressable style={styles.buttonHeart}>
-                    <Image source={require("../../assets/icon/heart.png")}
-                        style={styles.iconHeart}
-                        resizeMode="contain" />
+                <Pressable style={styles.buttonHeart}
+                    onPress={() => toggleFavorite()}>
+                    {favorite
+                        ? <Icon name='favorite' type='material' color='#029c59' />
+                        : <Icon name='favorite-border' type='material' color='#029c59' />}
                 </Pressable>
             </View>
 
@@ -204,7 +223,6 @@ const styles = StyleSheet.create({
         backgroundColor: '#FFF',
         padding: 10,
         borderRadius: 100,
-
     },
     image: {
         width: w,

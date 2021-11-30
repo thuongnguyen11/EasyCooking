@@ -1,20 +1,24 @@
 import { useNavigation } from "@react-navigation/core";
 import React, { useEffect, useState } from "react";
-import { StyleSheet, ScrollView, View, Text, Image, Button, TextInput, FlatList, ActivityIndicator } from "react-native";
+import { StyleSheet, ScrollView, View, Text, Image, Button, TextInput, FlatList } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { getRecipes } from "../../apis/FoodRecipeApi";
 import RecipePopular from "../../components/RecipePopular";
 import RecipesList from "../../components/RecipesList";
+
+import auth from '@react-native-firebase/auth';
+import firestore from '@react-native-firebase/firestore';
 
 import themes from '../../config/themes';
 
 const MainScreen = () => {
     const [recipes, setRecipes] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [favorites, setFavorites] = useState([]);
 
     const navigation = useNavigation();
     const onPressItem = (id) => {
-        navigation.navigate('Detail', { id });
+        navigation.navigate('Detail', { id, favorites });
     }
 
     useEffect(() => {
@@ -27,7 +31,19 @@ const MainScreen = () => {
             setRecipes(data);
             setLoading(false);
         });
+
+        const user = auth().currentUser;
+        const subscriber = firestore()
+            .collection('users')
+            .doc(user.uid)
+            .onSnapshot(documentSnapshot => {
+                const data = documentSnapshot.data();
+                setFavorites(data.favorites);
+            });
+
+        return () => subscriber();
     };
+
 
     return (
         <SafeAreaView style={styles.SafeAreaView}>
@@ -41,7 +57,7 @@ const MainScreen = () => {
                                 <Image source={require('../../assets/icon/cooking4.png')}></Image>
                             </View>
                         </View>
-                        <View style={styles.searchContainer}>
+                        {/* <View style={styles.searchContainer}>
                             <View style={styles.iconSearch}>
                                 <Image source={require('../../assets/icon/search.png')}></Image>
                             </View>
@@ -49,20 +65,13 @@ const MainScreen = () => {
                             <View style={styles.filterButton}>
                                 <Image source={require('../../assets/icon/filter.png')}></Image>
                             </View>
-                        </View>
+                        </View> */}
 
                         <RecipePopular onPress={onPressItem} />
 
                         <Text style={styles.titleRecipesList}>Gợi ý cho bạn</Text>
-                        <View>
-                            {loading ?
-                                <View style={{ width: '100%', justifyContent: 'center', alignItems: 'center', height: '100%', position: 'absolute', zIndex: 9, }}>
-                                    <ActivityIndicator size="large" color="red" />
-                                </View>
-                                : null
-                            }
-                            <RecipesList onPress={onPressItem} recipes={recipes} />
-                        </View>
+
+                        <RecipesList onPress={onPressItem} recipes={recipes} favorites={favorites} loading={loading} />
                     </>
                 }>
 

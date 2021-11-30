@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from "react";
 
-import { View, Text, SafeAreaView, FlatList, Image, StyleSheet, TextInput, ActivityIndicator } from "react-native";
+import { View, Text, SafeAreaView, FlatList, StyleSheet } from "react-native";
 
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 
 import RecipesList from "../../components/RecipesList";
 import themes from '../../config/themes';
-import { getRecipes, searchRecipe, } from "../../apis/FoodRecipeApi";
-import { removeVietnameseTones } from "../../global/utilities";
+import { getRecipesFavorite, } from "../../apis/FoodRecipeApi";
 
-const SearchScreen = ({ navigation }) => {
+
+const MyFavoriteScreen = ({ navigation }) => {
     const [recipes, setRecipes] = useState([]);
     const [loading, setLoading] = useState(false);
     const [favorites, setFavorites] = useState([]);
@@ -20,10 +20,6 @@ const SearchScreen = ({ navigation }) => {
     }
 
     useEffect(() => {
-        fetchRecipes();
-    }, []);
-
-    useEffect(() => {
         const user = auth().currentUser;
         const subscriber = firestore()
             .collection('users')
@@ -31,36 +27,16 @@ const SearchScreen = ({ navigation }) => {
             .onSnapshot(documentSnapshot => {
                 const data = documentSnapshot.data();
                 setFavorites(data.favorites);
+
+                setLoading(true);
+                getRecipesFavorite(data.favorites, (data) => {
+                    setRecipes(data);
+                    setLoading(false);
+                });
             });
 
         return () => subscriber();
     }, []);
-
-    const fetchRecipes = () => {
-        setLoading(true);
-        getRecipes((data) => {
-            setRecipes(data);
-            setLoading(false);
-        });
-    };
-
-
-    const onSubmit = (data) => {
-        setLoading(true);
-
-        const searchTerm = removeVietnameseTones(data.text.toLowerCase());
-        const noResult = () => {
-            console.log('khong');
-            return (
-                <Text>abcbababa</Text>
-            )
-        }
-
-        searchRecipe(searchTerm, (result) => {
-            setRecipes(result);
-            setLoading(false);
-        });
-    }
 
     return (
         <SafeAreaView style={styles.SafeAreaView}>
@@ -70,26 +46,13 @@ const SearchScreen = ({ navigation }) => {
                 ListFooterComponent={
                     <>
                         <View style={styles.titleGroup}>
-                            <Text style={styles.title}>Bạn muốn nấu món gì?</Text>
-                            <View style={styles.titleIconCooking}>
+                            <Text style={styles.title}>Kho yêu thích</Text>
+                            {/* <View style={styles.titleIconCooking}>
                                 <Image source={require('../../assets/icon/cooking4.png')}></Image>
-                            </View>
+                            </View> */}
                         </View>
 
-                        <View style={styles.searchContainer}>
-                            <View style={styles.iconSearch}>
-                                <Image source={require('../../assets/icon/search.png')}></Image>
-                            </View>
-                            <TextInput
-                                style={styles.inputSearch} placeholder="Tìm kiếm công thức"
-                                onSubmitEditing={({ nativeEvent }) => onSubmit(nativeEvent)}
-                            >
 
-                            </TextInput>
-                            <View style={styles.filterButton}>
-                                <Image source={require('../../assets/icon/filter.png')}></Image>
-                            </View>
-                        </View>
                         <RecipesList onPress={onPressItem} recipes={recipes} favorites={favorites} loading={loading} />
                     </>
                 }>
@@ -100,8 +63,7 @@ const SearchScreen = ({ navigation }) => {
     )
 }
 
-export default SearchScreen;
-
+export default MyFavoriteScreen;
 
 const styles = StyleSheet.create({
     SafeAreaView: {
@@ -117,7 +79,10 @@ const styles = StyleSheet.create({
         color: '#029c59',
         textShadowColor: 'rgba(130, 237, 191, 0.9)',
         textShadowOffset: { width: 2, height: 2 },
-        textShadowRadius: 7
+        textShadowRadius: 7,
+        marginBottom: 10,
+        textAlign: 'center',
+        flex: 1,
     },
     titleIconCooking: {
         position: 'absolute',
@@ -163,20 +128,8 @@ const styles = StyleSheet.create({
         height: '100%',
         position: 'absolute',
         zIndex: 9,
-        // backgroundColor: 'rgba(218, 247, 234,0.2)',
 
     },
 
-    notFound: {
-        width: '100%',
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginTop: 250,
-    },
-    // notFoundImage: {
-    //     width: '30%',
-    //     height: 1,
-    //     justifyContent: 'center',
-    //     alignItems: 'center',
-    // }
+
 })
