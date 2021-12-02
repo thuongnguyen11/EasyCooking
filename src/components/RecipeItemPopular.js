@@ -1,53 +1,49 @@
 import React from "react";
 import { useNavigation } from "@react-navigation/core";
-import { FlatList, Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import RecipeItemPopular from "./RecipeItemPopular";
+import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Icon } from 'react-native-elements';
 
 import themes from "../config/themes";
 
-const RecipePopular = ({ onPress, recipesPopular, favorites, loading }) => {
-    const navigation = useNavigation();
-    const onPessButtonViewAll = () => {
-        navigation.navigate('MostPopular');
-    }
 
-    const renderItem = (recipePopular) => {
-        return <RecipeItemPopular
-            onPress={onPress}
-            recipePopular={recipePopular}
-            isFavorite={favorites?.includes(recipePopular.item.id)} />
-    };
-
-
+const RecipeItemPopular = ({ onPress, recipePopular, isFavorite }) => {
     return (
-        <View style={styles.container}>
-            <View style={styles.header}>
-                <Text style={styles.title}>Phổ biến nhất</Text>
-                <Pressable>
-                    <Text style={styles.ViewAll} onPress={onPessButtonViewAll}>Xem tất cả</Text>
-                </Pressable>
+        <Pressable style={styles.itemContainer} key={recipePopular.item.id} onPress={() => onPress(recipePopular.item.id)} >
+            <Image style={styles.image} source={{uri: recipePopular.item.image}} />
+            <View style={styles.cardItem}>
+                <Text style={styles.titleItem}>{recipePopular.item.name}</Text>
+                <View style={styles.starCon}>
+                    {Array(5)
+                        .fill(0)
+                        .map((_, index) => (
+                            <Image key={index} style={styles.star} source={require("../assets/icon/star.png")} />))}
+                </View>
+
+                <View style={styles.footerItem}>
+                    <Image source={require("../assets/icon/clock.png")} />
+                    <Text style={styles.footerItemText}>{recipePopular.item.time}</Text>
+                </View>
             </View>
-            <ScrollView
-                showsHorizontalScrollIndicator={false}
-                horizontal
-                contentContainerStyle={styles.ScrollView}>
-                <FlatList
-                    horizontal
-                    data={recipesPopular}
-                    listKey={(item) => item.tracking_code.toString()}
-                    scrollEnabled={false}
-                    renderItem={renderItem}
-                />
-            </ScrollView>
-        </View>
+            <Pressable style={styles.buttonHeart}>
+                {isFavorite
+                    ? <Icon name='favorite' type='material' color='#029c59' />
+                    : <Icon name='favorite-border' type='material' color='#029c59' />}
+            </Pressable>
+
+        </Pressable>
     )
 }
 
-export default RecipePopular;
+
+
+export default RecipeItemPopular;
 const styles = StyleSheet.create({
     image: {
         borderTopLeftRadius: 10,
         borderTopRightRadius: 10,
+        width: '100%',
+        height: 135,
+        borderWidth: 1,
 
     },
     ScrollView: {
@@ -67,14 +63,14 @@ const styles = StyleSheet.create({
     itemContainer: {
         backgroundColor: '#fff',
         shadowColor: 'gray',
-        shadowOffset: { width: 0, height: 2 },
+        shadowOffset: { width: 0, height:  2},
         shadowOpacity: 0.3,
         // shadowRadius: 10,
-        elevation: 3,
+        elevation: 5,
         borderRadius: 10,
         marginRight: 20,
         marginBottom: 10,
-
+        width: 200,
     },
     footerItemText: {
         fontSize: 14,

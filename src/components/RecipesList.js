@@ -3,6 +3,7 @@ import { ActivityIndicator, Dimensions, FlatList, Image, Pressable, ScrollView, 
 import themes from "../config/themes";
 import RecipeItem from "./RecipeItem";
 
+
 const w = Dimensions.get('screen').width;
 
 const RecipesList = ({ onPress, recipes, favorites, loading }) => {

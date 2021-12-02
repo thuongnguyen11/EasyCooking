@@ -1,17 +1,119 @@
 import React, { useEffect, useState, useRef } from "react";
-import { View, Text, StyleSheet, Image, Dimensions, Pressable, ScrollView, SafeAreaView, TextInput, ActivityIndicator } from "react-native";
-import { Button } from 'react-native-elements';
+import { View, Text, StyleSheet, Image, Dimensions, Pressable, ScrollView, SafeAreaView, TextInput, ActivityIndicator, TouchableOpacity } from "react-native";
+import { Button, Icon, Avatar } from 'react-native-elements';
 import auth from '@react-native-firebase/auth';
 import { useNavigation } from "@react-navigation/core";
 import { Picker } from '@react-native-picker/picker';
-import DatePicker from 'react-native-date-picker'
+import DatePicker from 'react-native-date-picker';
+import { launchImageLibrary } from 'react-native-image-picker';
 
-
-import { getUserInformation, updateUserInfor } from "../../apis/FoodRecipeApi";
+import { getUserInformation, updateUserInfor, uploadUserAvatar, uploadUserBackground } from "../../apis/FoodRecipeApi";
 import themes from '../../config/themes';
 
 
 const w = Dimensions.get("screen").width;
+
+const UserAvatar = ({ avatar, onAvatarPicked }) => {
+
+    const [selectedAvatar, setSelectedAvatar] = useState();
+
+    useEffect(() => {
+        setSelectedAvatar(avatar);
+    }, [avatar])
+
+    const pickAvatarHandler = () => {
+        launchImageLibrary({ title: 'Pick an avatar', maxWidth: 800, maxHeight: 600 },
+            response => {
+                if (response.errorCode) {
+                    console.log("image error");
+                }
+                else if (response.didCancel) {
+                    console.log("cancel");
+                } else {
+                    setSelectedAvatar(response.assets[0].uri);
+                    onAvatarPicked(response.assets[0].uri);
+                }
+            }
+        )
+    }
+
+    return (
+        <View style={styles.avatar}>
+            {selectedAvatar ?
+                <Image
+                    style={styles.userImg}
+                    source={{ uri: selectedAvatar }}
+                />
+                :
+                <Image
+                    style={styles.userImg}
+                    source={require('../../assets/image/thuong.jpg')}
+                />
+            }
+            <TouchableOpacity onPress={pickAvatarHandler} style={styles.avatarEditIcon}>
+                <View style={{
+                    backgroundColor: '#e4e6eb',
+                    padding: 6,
+                    paddingVertical: 9,
+                    borderRadius: 100,
+                    width: 40,
+                    height: 40,
+                    
+                }}>
+                    <Icon name='photo-camera' style='material' color='#000' size={20} />
+                </View>
+            </TouchableOpacity>
+        </View>
+    )
+}
+
+const UserBackground = ({ background, onBackgroundPicked }) => {
+
+    const [selectedBackground, setSelectedBackground] = useState();
+
+    useEffect(() => {
+        setSelectedBackground(background);
+    }, [background])
+
+    const pickBackgroundHandler = () => {
+        launchImageLibrary({ title: 'Pick an background', maxWidth: 800, maxHeight: 600 },
+            response => {
+                if (response.errorCode) {
+                    console.log("image error");
+                }
+                else if (response.didCancel) {
+                    console.log("cancel");
+                } else {
+                    setSelectedBackground(response.assets[0].uri);
+                    onBackgroundPicked(response.assets[0].uri);
+                }
+            }
+        )
+    }
+
+    return (
+        <View style={styles.background}>
+            {selectedBackground ?
+                <Image
+                    style={styles.coverImage}
+                    source={{ uri: selectedBackground }}
+                />
+                :
+                <Image
+                    style={styles.coverImage}
+                    resizeMode="cover"
+                    source={require('../../assets/image/thuong2.jpg')}>
+                </Image>
+            }
+            <TouchableOpacity onPress={pickBackgroundHandler} style={styles.iconBackground} >
+
+                <Icon name='photo-camera' style='material' color='#fff' />
+
+            </TouchableOpacity>
+        </View>
+    )
+}
+
 
 const UserProfileScreen = ({ onPress }) => {
     const [userInfor, setUserInfor] = useState({});
@@ -121,6 +223,18 @@ const UserProfileScreen = ({ onPress }) => {
         });
     }
 
+    const uploadAvatar = (uri) => {
+        uploadUserAvatar(uri, () => {
+            console.log('upload avatar success')
+        });
+    }
+
+    const uploadBackground = (uri) => {
+        uploadUserBackground(uri, () => {
+            console.log('upload background success')
+        });
+    }
+
     const updateUserInformation = () => {
         updateUserInfor(userInfor, () => {
             console.log('Success');
@@ -139,11 +253,7 @@ const UserProfileScreen = ({ onPress }) => {
             }
             <ScrollView>
                 <View style={styles.container}>
-                    <Image
-                        style={styles.coverImage}
-                        resizeMode="cover"
-                        source={require('../../assets/image/thuong2.jpg')}>
-                    </Image>
+                    <UserBackground background={userInfor.background} onBackgroundPicked={uploadBackground} />
                     <View style={styles.header}>
                         <Pressable onPress={onBack}>
                             <Image source={require('../../assets/icon/back.png')} />
@@ -152,10 +262,7 @@ const UserProfileScreen = ({ onPress }) => {
                     <View style={styles.subHeader}>
                         <View style={styles.subHeaderBackground}>
                             <View style={{ flex: 1, padding: 20, width: '100%', alignItems: 'center' }}>
-                                <Image
-                                    style={styles.userImg}
-                                    source={require('../../assets/image/thuong.jpg')}
-                                />
+                                <UserAvatar avatar={userInfor.avatar} onAvatarPicked={uploadAvatar} />
                                 <View style={{ position: 'relative', width: '100%' }}>
                                     <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
                                         {
@@ -249,13 +356,6 @@ const UserProfileScreen = ({ onPress }) => {
                                 </View>
                             </View>
 
-                            {/* <View style={styles.item}>
-                            <View style={styles.titleItem}>
-                                <Image style={styles.icon} source={require('../../assets/icon/phone.png')} />
-                                <Text style={styles.detailInformation}>Số điện thoại: 0977113803</Text>
-                            </View>
-                            <Image style={styles.editItem} source={require('../../assets/icon/pencil.png')}></Image>
-                        </View> */}
                             <View style={styles.item}>
                                 <View style={styles.titleItem}>
                                     <Image style={styles.icon} source={require('../../assets/icon/phone.png')} />
@@ -324,7 +424,7 @@ export default UserProfileScreen;
 const styles = StyleSheet.create({
     header: {
         position: 'absolute',
-        top: 45,
+        top: 20,
         justifyContent: 'space-between',
         paddingHorizontal: 20,
         flexDirection: 'row',
@@ -386,9 +486,31 @@ const styles = StyleSheet.create({
         top: 0,
         backgroundColor: 'gray',
     },
+    iconBackground: {
+        position: 'absolute',
+        top: 20,
+        right: -160,
+        width: '100%',
+    },
+    background: {
+        position: 'relative',
+        width: w,
+        overflow: 'visible',
+    },
     container: {
         flex: 1,
         backgroundColor: '#FFF',
+    },
+    avatar: {
+        position: 'relative',
+        marginTop: -100,
+    },
+    avatarEditIcon: {
+        position: 'absolute',
+        bottom: 20,
+        right: -270,
+        width: '100%',
+
     },
     userImg: {
         height: 150,
@@ -396,7 +518,6 @@ const styles = StyleSheet.create({
         borderRadius: 75,
         borderWidth: 5,
         borderColor: '#fff',
-        marginTop: -100,
     },
     item: {
         flexDirection: 'row',

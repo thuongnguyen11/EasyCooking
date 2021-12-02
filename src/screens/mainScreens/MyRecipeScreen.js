@@ -56,9 +56,7 @@ const MyRecipeScreen = ({ navigation }) => {
                     <>
                         <View style={styles.titleGroup}>
                             <Text style={styles.title}>Công thức của tôi</Text>
-                            {/* <View style={styles.titleIconCooking}>
-                                <Image source={require('../../assets/icon/cooking4.png')}></Image>
-                            </View> */}
+                            
                         </View>
 
                         <RecipesList onPress={onPressItem} recipes={recipes} favorites={favorites} loading={loading} />

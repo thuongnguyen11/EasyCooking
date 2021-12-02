@@ -611,8 +611,6 @@ const styles = StyleSheet.create({
         width: 200,
         height: 40,
         justifyContent: 'center'
-        
-        
     },
     pickerCategory: {
         height: 50,

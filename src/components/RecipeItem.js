@@ -9,9 +9,7 @@ const w = Dimensions.get('screen').width;
 const RecipeItem = ({ onPress, recipe, isFavorite }) => {
     return (
         <Pressable style={styles.item} key={recipe.item.id} onPress={() => onPress(recipe.item.id)}>
-            <Image style={styles.image} style={styles.image} source={{
-                uri: recipe.item.image,
-            }} />
+            <Image style={styles.image}  source={{uri: recipe.item.image}} />
             <View style={styles.body}>
                 <Text style={styles.titleItem}>{recipe.item.name}</Text>
                 <View style={styles.starCon}>

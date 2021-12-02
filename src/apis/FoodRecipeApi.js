@@ -125,6 +125,40 @@ export const updateUserInfor = async (userInfor, onUpdateUserInforSuccess) => {
     onUpdateUserInforSuccess();
 }
 
+export const uploadUserAvatar = async (uri, onUploadUserAvtSuccess) => {
+    const user = auth().currentUser;
+    const fileExtension = uri.split('.').pop();
+
+    const fileName = `avatar.${fileExtension}`;
+
+    const storageRef = storage().ref(`users/${user.uid}/${fileName}`);
+    await storageRef.putFile(uri);
+
+    const downloadURL = await storageRef.getDownloadURL();
+
+    firestore().collection(COLLECTION_NAME.USERS).doc(user.uid).update({
+        avatar: downloadURL,
+    }).then(() => onUploadUserAvtSuccess());
+
+}
+
+export const uploadUserBackground = async (uri, onUploadUserBgSuccess) => {
+    const user = auth().currentUser;
+    const fileExtension = uri.split('.').pop();
+
+    const fileName = `background.${fileExtension}`;
+
+    const storageRef = storage().ref(`users/${user.uid}/${fileName}`);
+    await storageRef.putFile(uri);
+
+    const downloadURL = await storageRef.getDownloadURL();
+
+    firestore().collection(COLLECTION_NAME.USERS).doc(user.uid).update({
+        background: downloadURL,
+    }).then(() => onUploadUserBgSuccess());
+
+}
+
 export const getRecipesFavorite = async (ids, onGetRecipesFavoriteSuccess) => {
     let recipesFavorite = [];
 
@@ -139,6 +173,6 @@ export const getMyRecipes = async (onGetMyRecipesSuccess) => {
     const user = auth().currentUser;
     const snapshot = await firestore().collection(COLLECTION_NAME.RECIPES).where('uid', '==', user.uid).get();
     const myRecipes = snapshot.docs.map(d => ({ ...d.data(), id: d.id, }));
-    
+
     onGetMyRecipesSuccess(myRecipes);
 }

@@ -11,7 +11,10 @@ import firestore from '@react-native-firebase/firestore';
 
 import themes from '../../config/themes';
 
+
+
 const MainScreen = () => {
+    const [recipesPopular, setRecipesPopular] = useState([]);
     const [recipes, setRecipes] = useState([]);
     const [loading, setLoading] = useState(false);
     const [favorites, setFavorites] = useState([]);
@@ -25,11 +28,21 @@ const MainScreen = () => {
         fetchRecipes();
     }, []);
 
+
     const fetchRecipes = () => {
         setLoading(true);
         getRecipes((data) => {
-            setRecipes(data);
-            setLoading(false);
+            const numberElementsDisplay = 5;
+
+            const recipeRandom = data
+              .map(x => ({ x, r: Math.random() }))
+              .sort((a, b) => a.r - b.r)
+              .map(a => a.x)
+              .slice(0, numberElementsDisplay);
+
+              setLoading(false);
+            setRecipes(recipeRandom);
+            setRecipesPopular(data);
         });
 
         const user = auth().currentUser;
@@ -67,7 +80,7 @@ const MainScreen = () => {
                             </View>
                         </View> */}
 
-                        <RecipePopular onPress={onPressItem} />
+                        <RecipePopular onPress={onPressItem} recipesPopular={recipesPopular} favorites={favorites} loading={loading} />
 
                         <Text style={styles.titleRecipesList}>Gợi ý cho bạn</Text>
 

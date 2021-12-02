@@ -95,31 +95,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 15,
         paddingTop: 10,
     },
-    searchContainer: {
-        flexDirection: 'row',
-        backgroundColor: '#e4f2ec',
-        borderRadius: 10,
-        marginTop: 10,
-    },
-    filterButton: {
-        backgroundColor: themes.colors.main,
-        aspectRatio: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        borderRadius: 10,
-    },
-    inputSearch: {
-        flex: 1,
-        padding: 10,
-        lineHeight: 0.5,
-
-    },
-    iconSearch: {
-        aspectRatio: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        color: '#000',
-    },
+    
     loading: {
         width: '100%',
         flex: 1,
