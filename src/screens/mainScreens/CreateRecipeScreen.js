@@ -82,7 +82,6 @@ const CreateRecipeScreen = ({ navigation }) => {
     }
 
     const onSubmit = async () => {
-
         setInput({
             ...input,
             isSubmited: true,
@@ -127,7 +126,6 @@ const CreateRecipeScreen = ({ navigation }) => {
             console.log('not ok');
             return;
         }
-
     }
 
     const showValidationMessage = (field) => !input[field] && input.isSubmited;
@@ -153,8 +151,6 @@ const CreateRecipeScreen = ({ navigation }) => {
     }
 
     const handleValidName = (value) => {
-        console.log(value);
-
         setInput({
             ...input,
             isSubmited: false,
@@ -616,7 +612,7 @@ const styles = StyleSheet.create({
         height: 50,
         width: 200,
         color: '#000'
-    
+
     },
     styledButtonSignUp: {
         backgroundColor: '#fff',

@@ -1,8 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { ActivityIndicator, Dimensions, Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
-import { Icon } from 'react-native-elements';
+import { Icon, Button } from 'react-native-elements';
+
+
 import themes from '../../config/themes';
-import { getRecipeById, updateFavoritesList } from "../../apis/FoodRecipeApi";
+import { getRecipeById, updateFavoritesList, updateRecipeStatus } from "../../apis/FoodRecipeApi";
+import { RECIPE_STATUS } from "../../global/constants";
+import { useToast } from "react-native-toast-notifications";
+
 
 const w = Dimensions.get("screen").width;
 
@@ -20,7 +25,6 @@ const Step = ({ step, index }) => {
 const Ingredient = ({ ingredient, index }) => {
     return (
         <View style={styles.item} key={index}>
-
             <Image
                 style={styles.itemImg}
                 resizeMode="cover"
@@ -32,13 +36,18 @@ const Ingredient = ({ ingredient, index }) => {
     )
 }
 
+
 const DetailScreen = ({ route, navigation }) => {
+    const toast = useToast();
+
     const [recipe, setRecipe] = useState([]);
     const [loading, setLoading] = useState(false);
     const { id, favorites } = route.params;
 
     const [favorite, isFavorite] = useState(favorites.includes(id));
     const [tempFavorites, setTempFavorites] = useState([...favorites]);
+    const [checkStatus, setCheckStatus] = useState(false);
+
 
     useEffect(() => {
         fetchRecipe();
@@ -49,6 +58,7 @@ const DetailScreen = ({ route, navigation }) => {
         getRecipeById(id, (data) => {
             setRecipe(data);
             setLoading(false);
+            setCheckStatus(data.status !== RECIPE_STATUS.APPROVED);
         })
     };
 
@@ -87,6 +97,43 @@ const DetailScreen = ({ route, navigation }) => {
         return steps;
     }
 
+    const updateStatus = (status) => {
+        navigation.navigate({
+            name: 'Detail',
+            params: { id },
+            merge: true,
+        });
+
+        setLoading(true);
+        updateRecipeStatus(id, status, () => {
+
+            setLoading(false);
+            if (status === RECIPE_STATUS.APPROVED) {
+                toast.show("", {
+                    type: "custom_toast",
+                    animationDuration: 50,
+                    data: {
+                        title: "Duyệt bài thành công",
+                    },
+                });
+            } else {
+                toast.show("", {
+                    type: "custom_toast",
+                    animationDuration: 50,
+                    data: {
+                        title: "Từ chối bài đăng",
+                    },
+                });
+            }
+
+            navigation.goBack();
+
+        })
+
+
+
+    }
+
     const onBack = () => navigation.goBack();
     return (
         <View style={styles.container}>
@@ -117,7 +164,7 @@ const DetailScreen = ({ route, navigation }) => {
             <View style={styles.subHeader}>
                 <View style={styles.body}>
                     <Text style={styles.titleItem}>{recipe.name}</Text>
-                    <View style={styles.starCon}>
+                    <View style={styles.starIcon}>
                         {Array(5)
                             .fill(0)
                             .map((_, index) => (
@@ -145,12 +192,60 @@ const DetailScreen = ({ route, navigation }) => {
                 paddingHorizontal: 10,
                 paddingBottom: 56,
             }}>
-
+                <View style={styles.poster}>
+                    <View style={styles.posterAvatar}>
+                    </View>
+                    <View>
+                        <Text>Nguyen Thi Hoai Thuong</Text>
+                        <Text>Ngay dang: 1/1/2021</Text>
+                    </View>
+                </View>
                 <Text style={styles.title}>Các thành phần</Text>
                 <ScrollView horizontal>
                     {renderListIngredients()}
                 </ScrollView>
                 {renderListSteps()}
+
+
+
+                <View style={styles.rate}>
+                    <Text style={styles.titleRate}>Đánh giá công thức</Text>
+                    <View style={styles.starRate}>
+                        <Icon name='star-border'></Icon>
+                        <Icon name='star-border'></Icon>
+                        <Icon name='star-border'></Icon>
+                        <Icon name='star-border'></Icon>
+                        <Icon name='star-border'></Icon>
+                    </View>
+                    <Text>5/5</Text>
+                    <Button
+                        title="Gửi đánh giá"
+                        buttonStyle={styles.buttonSendRate}
+                        titleStyle={styles.buttonTitleSendRate}
+                        onPress={() => auth().signOut()}></Button>
+                </View>
+
+                {
+                    checkStatus
+                        ? <View style={styles.buttonGroup}>
+                            <Button
+                                title="Duyệt bài"
+                                buttonStyle={styles.buttonAcceptRefuse}
+                                titleStyle={styles.buttonTitleAcceptRefuse}
+                                onPress={() => updateStatus(RECIPE_STATUS.APPROVED)}>
+                            </Button>
+
+                            <Button
+                                title="Từ chối"
+                                buttonStyle={styles.buttonAcceptRefuse}
+                                titleStyle={styles.buttonTitleAcceptRefuse}
+                                onPress={() => updateStatus(RECIPE_STATUS.DENIED)}>
+                            </Button>
+                        </View>
+                        : null
+                }
+
+
             </ScrollView>
 
         </View>
@@ -197,7 +292,7 @@ const styles = StyleSheet.create({
         // shadowRadius: 10,
         elevation: 3,
     },
-    starCon: {
+    starIcon: {
         flexDirection: 'row',
         marginVertical: 9,
     },
@@ -230,6 +325,7 @@ const styles = StyleSheet.create({
         position: 'absolute',
         top: 0,
     },
+
     title: {
         fontSize: 18,
         fontWeight: '600',
@@ -262,6 +358,70 @@ const styles = StyleSheet.create({
         fontSize: 15,
         color: '#222',
         lineHeight: 25,
-    }
+    },
+    poster: {
+        marginTop: 20,
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    posterAvatar: {
+        width: 60,
+        height: 60,
+        borderRadius: 100,
+        backgroundColor: '#e4e6eb',
+        marginRight: 15,
+    },
+    rate: {
+        alignItems: 'center',
+    },
+    titleRate: {
+        fontSize: 16,
+        color: '#000',
+        paddingBottom: 5,
+
+    },
+    starRate: {
+        flexDirection: 'row',
+    },
+    buttonSendRate: {
+        backgroundColor: 'transparent',
+        flexDirection: 'row',
+        marginTop: -10,
+    },
+
+    buttonTitleSendRate: {
+        color: themes.colors.main,
+        textDecorationLine: 'underline',
+        fontSize: 18,
+        fontWeight: '600',
+        textAlign: 'center'
+    },
+
+    buttonGroup: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+    },
+
+    buttonAcceptRefuse: {
+        backgroundColor: 'transparent',
+        flexDirection: 'row',
+        justifyContent: 'center',
+        paddingBottom: 10,
+        marginHorizontal: 15,
+
+    },
+    buttonTitleAcceptRefuse: {
+        color: '#fff',
+        backgroundColor: themes.colors.main,
+        fontSize: 18,
+        fontWeight: '600',
+        borderWidth: 1,
+        borderRadius: 20,
+        borderColor: themes.colors.main,
+        paddingHorizontal: 15,
+        paddingVertical: 7,
+    },
+
+
 
 });

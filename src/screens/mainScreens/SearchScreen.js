@@ -7,7 +7,7 @@ import auth from '@react-native-firebase/auth';
 
 import RecipesList from "../../components/RecipesList";
 import themes from '../../config/themes';
-import { getRecipes, searchRecipe, } from "../../apis/FoodRecipeApi";
+import { getRecipes, searchRecipe, getApprovedRecipes } from "../../apis/FoodRecipeApi";
 import { removeVietnameseTones } from "../../global/utilities";
 
 const SearchScreen = ({ navigation }) => {
@@ -38,7 +38,7 @@ const SearchScreen = ({ navigation }) => {
 
     const fetchRecipes = () => {
         setLoading(true);
-        getRecipes((data) => {
+        getApprovedRecipes((data) => {
             setRecipes(data);
             setLoading(false);
         });
@@ -49,12 +49,6 @@ const SearchScreen = ({ navigation }) => {
         setLoading(true);
 
         const searchTerm = removeVietnameseTones(data.text.toLowerCase());
-        const noResult = () => {
-            console.log('khong');
-            return (
-                <Text>abcbababa</Text>
-            )
-        }
 
         searchRecipe(searchTerm, (result) => {
             setRecipes(result);

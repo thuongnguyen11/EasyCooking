@@ -96,6 +96,7 @@ export const getRecipeById = async (id, onGetRecipeByIdSuccess) => {
 export const searchRecipe = async (recipeName, onSearchRecipeSuccess) => {
     const snapshot = await firestore().collection(COLLECTION_NAME.RECIPES)
         .where('keywords', 'array-contains', recipeName)
+        .where('status', '==', RECIPE_STATUS.APPROVED)
         .get();
     onSearchRecipeSuccess(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
 }
@@ -168,11 +169,32 @@ export const getRecipesFavorite = async (ids, onGetRecipesFavoriteSuccess) => {
     onGetRecipesFavoriteSuccess(recipesFavorite);
 }
 
-
 export const getMyRecipes = async (onGetMyRecipesSuccess) => {
     const user = auth().currentUser;
     const snapshot = await firestore().collection(COLLECTION_NAME.RECIPES).where('uid', '==', user.uid).get();
     const myRecipes = snapshot.docs.map(d => ({ ...d.data(), id: d.id, }));
 
     onGetMyRecipesSuccess(myRecipes);
+}
+
+export const getPendingRecipes = async (onGetPendingRecipesSuccess) => {
+    const snapshot = await firestore().collection(COLLECTION_NAME.RECIPES)
+        .where('status', '==', RECIPE_STATUS.PENDING)
+        .get();
+    onGetPendingRecipesSuccess(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+}
+
+export const getApprovedRecipes = async (onGetApprovedRecipesSuccess) => {
+    const snapshot = await firestore().collection(COLLECTION_NAME.RECIPES)
+        .where('status', '==', RECIPE_STATUS.APPROVED)
+        .get();
+    onGetApprovedRecipesSuccess(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+}
+
+export const updateRecipeStatus = async (recipeId, status, onUpdateRecipeStatus) => {
+    await firestore().collection(COLLECTION_NAME.RECIPES).doc(recipeId).update({
+        status,
+    });
+
+    onUpdateRecipeStatus();
 }

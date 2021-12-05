@@ -10,5 +10,6 @@ export const COLLECTION_NAME = {
 
 export const RECIPE_STATUS = {
     PENDING: 'PENDING',
-    APPROVED: 'APPROVED'
+    APPROVED: 'APPROVED',
+    DENIED: 'DENIED',
 }

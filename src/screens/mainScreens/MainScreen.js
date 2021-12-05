@@ -1,8 +1,8 @@
 import { useNavigation } from "@react-navigation/core";
 import React, { useEffect, useState } from "react";
-import { StyleSheet, ScrollView, View, Text, Image, Button, TextInput, FlatList } from "react-native";
+import { StyleSheet, ScrollView, View, Text, Image, Button, TextInput, FlatList, Pressable } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { getRecipes } from "../../apis/FoodRecipeApi";
+import { getRecipes, getApprovedRecipes } from "../../apis/FoodRecipeApi";
 import RecipePopular from "../../components/RecipePopular";
 import RecipesList from "../../components/RecipesList";
 
@@ -10,7 +10,7 @@ import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
 
 import themes from '../../config/themes';
-
+import { Icon } from "react-native-elements";
 
 
 const MainScreen = () => {
@@ -18,10 +18,15 @@ const MainScreen = () => {
     const [recipes, setRecipes] = useState([]);
     const [loading, setLoading] = useState(false);
     const [favorites, setFavorites] = useState([]);
+    const [isAdmin, setIsAdmin] = useState(false);
 
     const navigation = useNavigation();
     const onPressItem = (id) => {
         navigation.navigate('Detail', { id, favorites });
+    }
+
+    const onPessIconPending = () => {
+        navigation.navigate('PendingRecipes');
     }
 
     useEffect(() => {
@@ -31,16 +36,16 @@ const MainScreen = () => {
 
     const fetchRecipes = () => {
         setLoading(true);
-        getRecipes((data) => {
+        getApprovedRecipes((data) => {
             const numberElementsDisplay = 5;
 
             const recipeRandom = data
-              .map(x => ({ x, r: Math.random() }))
-              .sort((a, b) => a.r - b.r)
-              .map(a => a.x)
-              .slice(0, numberElementsDisplay);
+                .map(x => ({ x, r: Math.random() }))
+                .sort((a, b) => a.r - b.r)
+                .map(a => a.x)
+                .slice(0, numberElementsDisplay);
 
-              setLoading(false);
+            setLoading(false);
             setRecipes(recipeRandom);
             setRecipesPopular(data);
         });
@@ -52,6 +57,7 @@ const MainScreen = () => {
             .onSnapshot(documentSnapshot => {
                 const data = documentSnapshot.data();
                 setFavorites(data.favorites);
+                setIsAdmin(data.type === 'ADMIN');
             });
 
         return () => subscriber();
@@ -65,20 +71,20 @@ const MainScreen = () => {
                 ListFooterComponent={
                     <>
                         <View style={styles.titleGroup}>
-                            <Text style={styles.title}>Bạn muốn nấu món gì?</Text>
+                            {/* <Text style={styles.title}>Bạn muốn nấu món gì?</Text> */}
                             <View style={styles.titleIconCooking}>
                                 <Image source={require('../../assets/icon/cooking4.png')}></Image>
                             </View>
+                            {
+                                isAdmin
+                                    ? <Pressable onPress={onPessIconPending}>
+                                        <Icon name='pending-actions' size={35} color={themes.colors.main}></Icon>
+                                    </Pressable>
+                                    : null
+                            }
+
                         </View>
-                        {/* <View style={styles.searchContainer}>
-                            <View style={styles.iconSearch}>
-                                <Image source={require('../../assets/icon/search.png')}></Image>
-                            </View>
-                            <TextInput style={styles.inputSearch} placeholder="Tìm kiếm công thức"></TextInput>
-                            <View style={styles.filterButton}>
-                                <Image source={require('../../assets/icon/filter.png')}></Image>
-                            </View>
-                        </View> */}
+
 
                         <RecipePopular onPress={onPressItem} recipesPopular={recipesPopular} favorites={favorites} loading={loading} />
 
@@ -102,19 +108,19 @@ const styles = StyleSheet.create({
     },
     titleGroup: {
         flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
     },
-    title: {
-        fontSize: 36,
-        fontWeight: '500',
-        color: '#029c59',
-        textShadowColor: 'rgba(130, 237, 191, 0.9)',
-        textShadowOffset: { width: 2, height: 2 },
-        textShadowRadius: 7
-    },
+    // title: {
+    //     fontSize: 36,
+    //     fontWeight: '500',
+    //     color: '#029c59',
+    //     textShadowColor: 'rgba(130, 237, 191, 0.9)',
+    //     textShadowOffset: { width: 2, height: 2 },
+    //     textShadowRadius: 7
+    // },
     titleIconCooking: {
-        position: 'absolute',
-        left: 60,
-        top: 25,
+        top: -5,
     },
     titleRecipesList: {
         color: themes.colors.main,
