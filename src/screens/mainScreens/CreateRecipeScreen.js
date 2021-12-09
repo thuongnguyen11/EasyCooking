@@ -286,7 +286,7 @@ const CreateRecipeScreen = ({ navigation }) => {
 
     const addIngredientInput = () => {
         const inputs = [...ingredients];
-        inputs.push({ id: shortid.generate(), name: '', amount: 0, uri: null });
+        inputs.push({ id: shortid.generate(), name: '', amount: '', uri: null });
         setIngredients(inputs);
     }
 

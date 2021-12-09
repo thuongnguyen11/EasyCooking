@@ -21,7 +21,7 @@ import themes from '../../config/themes';
 import bgimage from '../../assets/image/bg7.png';
 import CustomImagePicker from "../../components/CustomImagePicker";
 import UploadImage from "../../components/UploadImage";
-import { createRecipe } from '../../apis/FoodRecipeApi';
+import { updateRecipe } from '../../apis/FoodRecipeApi';
 import { getRecipeById } from "../../apis/FoodRecipeApi";
 
 
@@ -137,29 +137,26 @@ const EditRecipeScreen = ({ route, navigation }) => {
                 recipe.image = dishImage;
             }
 
-            console.log(recipe);
 
-            // setLoading(true);
+            setLoading(true);
 
-            // const callback = () => {
-            //     setLoading(false);
+            const callback = () => {
+                setLoading(false);
 
-            //     toast.show("Bài đăng của bạn sẽ được phê duyệt trong vòng 24 giờ.", {
-            //         type: "custom_toast",
-            //         animationDuration: 50,
-            //         data: {
-            //             title: "Đang chờ phê duyệt",
-            //         },
-            //     });
+                toast.show("Bài đăng của bạn sẽ được phê duyệt trong vòng 24 giờ.", {
+                    type: "custom_toast",
+                    animationDuration: 50,
+                    data: {
+                        title: "Chỉnh sửa đã được thay đổi",
+                    },
+                });
 
-            //     resetState();
+                navigation.goBack();
+            };
 
-            //     navigation.goBack();
-            // };
+            updateRecipe(id, recipe, callback);
 
-            // createRecipe(recipe, callback);
-
-            // return;
+            return;
 
         } else {
             console.log('not ok');
@@ -325,7 +322,7 @@ const EditRecipeScreen = ({ route, navigation }) => {
 
     const addIngredientInput = () => {
         const inputs = [...ingredients];
-        inputs.push({ id: shortid.generate(), name: '', amount: 0, uri: null });
+        inputs.push({ id: shortid.generate(), name: '', amount: '', uri: null });
         setIngredients(inputs);
     }
 
@@ -359,7 +356,6 @@ const EditRecipeScreen = ({ route, navigation }) => {
 
     const getIngredientControls = () => {
         return ingredients.map((ingredient, index) => {
-            // console.log(ingredient);
             return (
                 <View key={ingredient.id} style={styles.ingredientInputGroup}>
                     {index !== 0 ? <TouchableOpacity activeOpacity={0.5} style={styles.deleteButton}
@@ -478,7 +474,7 @@ const EditRecipeScreen = ({ route, navigation }) => {
                     renderItem={null}
                     ListFooterComponent={
                         <>
-                            <Text style={styles.title}>Tạo bài đăng</Text>
+                            <Text style={styles.title}>Chỉnh sửa bài đăng</Text>
                             <UploadImage dishImage={dishImage} onDishImagePicked={(uri) => handleValidDishImage(uri)}></UploadImage>
                             {showValidationMessage('isValidDishImage') ?
                                 errorMsg('Hình ảnh') : null

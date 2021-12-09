@@ -79,6 +79,76 @@ export const createRecipe = async (recipe, onCreateRecipeSuccess) => {
     });
 }
 
+const updateIngredientImage = async (recipeId, ingredient) => {
+    if (!ingredient.uri) {
+        delete ingredient['uri'];
+
+        return {
+            ...ingredient,
+            image: null,
+        };
+    } else if (ingredient.uri.startsWith('https')) {
+        const updated = {
+            ...ingredient,
+            image: ingredient.uri
+        }
+
+        delete updated['uri'];
+
+        return updated;
+    }
+    else {
+        const uri = ingredient.uri;
+
+        const fileExtension = uri.split('.').pop();
+
+        const id = shortid.generate();
+
+        const fileName = `${id}.${fileExtension}`;
+
+        const storageRef = storage().ref(`recipes/${recipeId}/${fileName}`);
+        await storageRef.putFile(uri);
+
+        const downloadURL = await storageRef.getDownloadURL();
+        delete ingredient['uri'];
+
+        return {
+            ...ingredient,
+            image: downloadURL
+        };
+    }
+};
+
+const updateIngredientImages = async (recipeId, ingredients) => {
+    return Promise.all(ingredients.map(ingredient => updateIngredientImage(recipeId, ingredient)));
+};
+
+export const updateRecipe = async (id, recipe, onUpdateRecipeSuccess) => {
+    const keywords = getKeywords(recipe.name);
+
+    let dishImage = null;
+
+    const ingredientWithImages = await updateIngredientImages(id, recipe.ingredients);
+    if (recipe.image) {
+        dishImage = await uploadDishImage(id, recipe.image);
+    }
+
+    const updatedRecipe = {
+        ...recipe,
+        ingredients: ingredientWithImages,
+        status: RECIPE_STATUS.PENDING,
+        keywords
+    }
+
+    if (!!dishImage) {
+        updatedRecipe.image = dishImage;
+    }
+
+    firestore().collection(COLLECTION_NAME.RECIPES).doc(id).update(updatedRecipe).then(() => {
+        onUpdateRecipeSuccess();
+    });
+}
+
 export const getRecipes = async (onGetRecipesSuccess) => {
     const snapshot = await firestore().collection(COLLECTION_NAME.RECIPES).get();
     onGetRecipesSuccess(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
