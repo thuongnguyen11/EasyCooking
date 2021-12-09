@@ -6,19 +6,19 @@ import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 
 import RecipesList from "../../components/RecipesList";
-import themes from '../../config/themes';
 import { getRecipes, searchRecipe, getMyRecipes} from "../../apis/FoodRecipeApi";
-import { removeVietnameseTones } from "../../global/utilities";
-
-
 
 const MyRecipeScreen = ({ navigation }) => {
     const [recipes, setRecipes] = useState([]);
     const [loading, setLoading] = useState(false);
-    const [favorites, setFavorites] = useState([]);
+    const [favorites, setFavorites] = useState([]);    
 
     const onPressItem = (id) => {
         navigation.navigate('Detail', { id, favorites });
+    }
+
+    const onEditItem = (id) => {
+        navigation.navigate('EditRecipe', { id });
     }
 
     useEffect(() => {
@@ -59,7 +59,7 @@ const MyRecipeScreen = ({ navigation }) => {
                             
                         </View>
 
-                        <RecipesList onPress={onPressItem} recipes={recipes} favorites={favorites} loading={loading} />
+                        <RecipesList onPress={onPressItem} recipes={recipes} favorites={favorites} loading={loading} onEdit={onEditItem} />
                     </>
                 }>
 

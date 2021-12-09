@@ -22,15 +22,14 @@ import bgimage from '../../assets/image/bg7.png';
 import CustomImagePicker from "../../components/CustomImagePicker";
 import UploadImage from "../../components/UploadImage";
 import { createRecipe } from '../../apis/FoodRecipeApi';
+import { getRecipeById } from "../../apis/FoodRecipeApi";
 
 
-const CreateRecipeScreen = ({ navigation }) => {
-    const toast = useToast();
 
-    useEffect(() => {
-        global["toast"] = toast;
-    }, []);
+const EditRecipeScreen = ({ route, navigation }) => {
+    const { id } = route.params;
 
+    const [recipe, setRecipe] = useState([]);
     const [loading, setLoading] = useState(false);
 
     const [dishImage, setDishImage] = useState(null);
@@ -38,22 +37,57 @@ const CreateRecipeScreen = ({ navigation }) => {
     const [category, setCategory] = useState('Món xào');
     const [description, setDescription] = useState('');
     const [time, setTime] = useState('');
-    const [ingredients, setIngredients] = useState([
-        { id: shortid.generate(), name: '', amount: 0, uri: null }
-    ]);
-    const [steps, setSteps] = useState([
-        { id: shortid.generate(), step: '' }
-    ]);
+    const [ingredients, setIngredients] = useState([]);
+    const [steps, setSteps] = useState([]);
     const [input, setInput] = useState({
-        isValidDishImage: false,
-        isValidName: false,
-        isValidDescription: false,
-        isValidIngredientName: false,
-        isValidIngredientAmount: false,
-        isValidStep: false,
-        isValidTime: false,
+        isValidDishImage: true,
+        isValidName: true,
+        isValidDescription: true,
+        isValidIngredientName: true,
+        isValidIngredientAmount: true,
+        isValidStep: true,
+        isValidTime: true,
         isSubmited: false,
     });
+
+    const toast = useToast();
+
+    useEffect(() => {
+        global["toast"] = toast;
+        fetchRecipe();
+    }, []);
+
+    const fetchRecipe = () => {
+        setLoading(true);
+        getRecipeById(id, (data) => {
+            setRecipe(data);
+            setLoading(false);
+            patchFormValue(data);
+        })
+    };
+
+    const patchFormValue = (data) => {
+        setDishImage(data.image);
+        setName(data.name);
+        setCategory(data.category);
+        setDescription(data.description);
+        setTime(data.time);
+
+        const steps = data.steps.map(s => {
+            return {
+                id: shortid.generate(), step: s
+            }
+        });
+        setSteps([...steps]);
+
+        const ingredients = data.ingredients.map(i => {
+            return {
+                id: i.id, name: i.name, amount: i.amount, uri: i.image
+            };
+        });
+        setIngredients(ingredients);
+
+    }
 
     const resetState = () => {
         setLoading(false);
@@ -92,7 +126,6 @@ const CreateRecipeScreen = ({ navigation }) => {
         if (Object.values(controlStates).every(state => !!state)) {
             const recipe = {
                 name,
-                image: dishImage,
                 category,
                 description,
                 ingredients,
@@ -100,27 +133,33 @@ const CreateRecipeScreen = ({ navigation }) => {
                 time
             };
 
-            setLoading(true);
+            if (!dishImage.startsWith('https')) {
+                recipe.image = dishImage;
+            }
 
-            const callback = () => {
-                setLoading(false);
+            console.log(recipe);
 
-                toast.show("Bài đăng của bạn sẽ được phê duyệt trong vòng 24 giờ.", {
-                    type: "custom_toast",
-                    animationDuration: 50,
-                    data: {
-                        title: "Đang chờ phê duyệt",
-                    },
-                });
+            // setLoading(true);
 
-                resetState();
+            // const callback = () => {
+            //     setLoading(false);
 
-                navigation.goBack();
-            };
+            //     toast.show("Bài đăng của bạn sẽ được phê duyệt trong vòng 24 giờ.", {
+            //         type: "custom_toast",
+            //         animationDuration: 50,
+            //         data: {
+            //             title: "Đang chờ phê duyệt",
+            //         },
+            //     });
 
-            createRecipe(recipe, callback);
+            //     resetState();
 
-            return;
+            //     navigation.goBack();
+            // };
+
+            // createRecipe(recipe, callback);
+
+            // return;
 
         } else {
             console.log('not ok');
@@ -320,6 +359,7 @@ const CreateRecipeScreen = ({ navigation }) => {
 
     const getIngredientControls = () => {
         return ingredients.map((ingredient, index) => {
+            // console.log(ingredient);
             return (
                 <View key={ingredient.id} style={styles.ingredientInputGroup}>
                     {index !== 0 ? <TouchableOpacity activeOpacity={0.5} style={styles.deleteButton}
@@ -340,9 +380,10 @@ const CreateRecipeScreen = ({ navigation }) => {
                         </TouchableOpacity>}
 
                     <View style={styles.flexRow}>
-                        <CustomImagePicker onImagePicked={(uri) => updateIngredientImage(uri, ingredient.id)} />
+                        <CustomImagePicker image={ingredient.uri} onImagePicked={(uri) => updateIngredientImage(uri, ingredient.id)} />
                         <View style={styles.flexColumn}>
                             <TextInput
+                                defaultValue={ingredient.name}
                                 style={[styles.input, styles.ingredientNameInput, showValidationMessage('isValidIngredientName') ? styles.borderInputErrIngredient : null]}
                                 placeholder='vd: Rau xanh'
                                 onChangeText={(value) => updateIngredientName(value, ingredient.id)}
@@ -354,6 +395,7 @@ const CreateRecipeScreen = ({ navigation }) => {
                                 </Animatable.View> : null
                             }
                             <TextInput
+                                defaultValue={ingredient.amount}
                                 style={[styles.input, styles.ingredientAmountInput, showValidationMessage('isValidIngredientAmount') ? styles.borderInputErrIngredient : null]}
                                 placeholder='vd: 1kg'
                                 onChangeText={(value) => updateIngredientAmount(value, ingredient.id)}
@@ -395,6 +437,7 @@ const CreateRecipeScreen = ({ navigation }) => {
         return steps.map((step, indexStep) => {
             return <View key={step.id}>
                 <TextInput
+                    defaultValue={step.step}
                     style={[styles.input, styles.stepNameInput, showValidationMessage('isValidStep') ? styles.borderInputError : null]}
                     placeholder={`Buoc ${indexStep + 1}: ...`}
                     onChangeText={(value) => updateStepName(value, step.id)}
@@ -468,16 +511,7 @@ const CreateRecipeScreen = ({ navigation }) => {
 
                                     </Picker>
                                 </View>
-                                {/* <TextInput
-                                    placeholder='Món nưóc'
-                                    value={category}
-                                    style={[styles.input, showValidationMessage('isValidCategory') ? styles.borderInputError : null]}
-                                    onChangeText={category => setCategory(category)}
-                                    onEndEditing={(e) => handleValidCategory(e.nativeEvent.text)}
-                                />
-                                {showValidationMessage('isValidCategory') ?
-                                    errorMsg('Phân loại') : null
-                                } */}
+
                             </View>
                             <View>
                                 <Text style={styles.titleIttem}>Mô tả</Text>
@@ -533,7 +567,7 @@ const CreateRecipeScreen = ({ navigation }) => {
                             </View>
                             <Button
                                 buttonStyle={styles.buttonCreatePost}
-                                title="Đăng bài"
+                                title="Lưu thay đổi"
                                 onPress={() => {
                                     onSubmit();
                                 }}
@@ -733,4 +767,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default CreateRecipeScreen;
+export default EditRecipeScreen;

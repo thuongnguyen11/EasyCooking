@@ -17,6 +17,7 @@ import {
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import { ToastProvider } from 'react-native-toast-notifications'
+import { ModalPortal } from 'react-native-modals';
 
 import SignInScreen from "./src/screens/authScreens/SignInScreen";
 import SignUpScreen from "./src/screens/authScreens/SignUpScreen";
@@ -32,6 +33,8 @@ import MostPopularScreen from "./src/screens/mainScreens/MostPopularScreen";
 import MyRecipeScreen from "./src/screens/mainScreens/MyRecipeScreen";
 import MyFavoriteScreen from "./src/screens/mainScreens/MyFavoriteScreen";
 import PendingRecipesScreen from "./src/screens/mainScreens/PendingRecipesScreen";
+import EditRecipeScreen from "./src/screens/mainScreens/EditRecipeScreen";
+import RecipeReviewScreen from "./src/screens/mainScreens/RecipeReviewScreen";
 
 
 const Stack = createNativeStackNavigator();
@@ -147,6 +150,14 @@ export default function App() {
         <Stack.Screen name="PendingRecipes">
           {props => <PendingRecipesScreen {...props} />}
         </Stack.Screen>
+
+        <Stack.Screen name="EditRecipe">
+          {props => <EditRecipeScreen {...props} />}
+        </Stack.Screen>
+
+        <Stack.Screen name="RecipeReview">
+          {props => <RecipeReviewScreen {...props} />}
+        </Stack.Screen>
       </>
   }
 
@@ -226,6 +237,7 @@ export default function App() {
           </Stack.Navigator>
         </NavigationContainer>
       </PaperProvider>
+      <ModalPortal />
     </ToastProvider>
   );
 }

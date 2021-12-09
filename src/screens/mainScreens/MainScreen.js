@@ -25,7 +25,9 @@ const MainScreen = () => {
         navigation.navigate('Detail', { id, favorites });
     }
 
-    const onPessIconPending = () => {
+    
+
+    const onPressIconPending = () => {
         navigation.navigate('PendingRecipes');
     }
 
@@ -77,7 +79,7 @@ const MainScreen = () => {
                             </View>
                             {
                                 isAdmin
-                                    ? <Pressable onPress={onPessIconPending}>
+                                    ? <Pressable onPress={onPressIconPending}>
                                         <Icon name='pending-actions' size={35} color={themes.colors.main}></Icon>
                                     </Pressable>
                                     : null
@@ -86,7 +88,7 @@ const MainScreen = () => {
                         </View>
 
 
-                        <RecipePopular onPress={onPressItem} recipesPopular={recipesPopular} favorites={favorites} loading={loading} />
+                        <RecipePopular onPress={onPressItem} recipesPopular={recipesPopular} favorites={favorites} loading={loading}  />
 
                         <Text style={styles.titleRecipesList}>Gợi ý cho bạn</Text>
 

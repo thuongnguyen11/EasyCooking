@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigation } from "@react-navigation/core";
-import { FlatList, Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, FlatList, Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import RecipeItemPopular from "./RecipeItemPopular";
 
 import themes from "../config/themes";
@@ -21,10 +21,16 @@ const RecipePopular = ({ onPress, recipesPopular, favorites, loading }) => {
 
     return (
         <View style={styles.container}>
+            {loading ?
+                <View style={{ width: '100%', height: '100%', position: 'absolute', zIndex: 9 }}>
+                    <ActivityIndicator size="large" color="red" />
+                </View>
+                : null
+            }
             <View style={styles.header}>
                 <Text style={styles.title}>Phổ biến nhất</Text>
-                <Pressable>
-                    <Text style={styles.ViewAll} onPress={onPessButtonViewAll}>Xem tất cả</Text>
+                <Pressable onPress={onPessButtonViewAll}>
+                    <Text style={styles.ViewAll} >Xem tất cả</Text>
                 </Pressable>
             </View>
             <ScrollView

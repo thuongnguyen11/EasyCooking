@@ -20,7 +20,7 @@ const CustomImagePicker = ({ image, onImagePicked }) => {
 
     useEffect(() => {
         if (image) {
-            setSelectedImage({ uri: image });
+            setSelectedImage(image);
         }
     }, [image])
 
@@ -33,8 +33,8 @@ const CustomImagePicker = ({ image, onImagePicked }) => {
                 else if (response.didCancel) {
                     console.log("cancel");
                 } else {
-                    setSelectedImage({ uri: response.assets[0].uri });
-                    onImagePicked({ uri: response.assets[0].uri });
+                    setSelectedImage(response.assets[0].uri);
+                    onImagePicked(response.assets[0].uri);
                 }
             }
         )
@@ -45,7 +45,7 @@ const CustomImagePicker = ({ image, onImagePicked }) => {
             onPress={pickImageHandler}>
             <View style={styles.imageContainer}>
                 <Text style={styles.titleImage}>Ảnh nguyên liệu</Text>
-                <Image source={selectedImage} style={styles.previewImage} />
+                <Image source={{ uri: selectedImage }} style={styles.previewImage} />
             </View>
 
         </TouchableOpacity>
@@ -60,7 +60,7 @@ const styles = StyleSheet.create({
     imageContainer: {
         borderWidth: 1,
         borderRadius: 10,
-        borderColor: themes.colors.main ,
+        borderColor: themes.colors.main,
         borderStyle: 'dashed',
         width: 100,
         height: 100,

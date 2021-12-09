@@ -72,6 +72,8 @@ export const createRecipe = async (recipe, onCreateRecipeSuccess) => {
         ingredients: ingredientWithImages,
         image: dishImage,
         createdAt: firestore.FieldValue.serverTimestamp(),
+        totalReviews: 0,
+        avgStar: 0,
     }).then(() => {
         onCreateRecipeSuccess();
     });
@@ -197,4 +199,24 @@ export const updateRecipeStatus = async (recipeId, status, onUpdateRecipeStatus)
     });
 
     onUpdateRecipeStatus();
+}
+
+export const submitReview = async (review, recipe, onSubmitReviewSuccess) => {
+    const totalReviews = recipe.totalReviews + 1;
+    const avgStar = Math.round((recipe.avgStar + review.star) / totalReviews);
+
+    firestore().collection(COLLECTION_NAME.REVIEWS).add(review)
+        .then(() => firestore().collection(COLLECTION_NAME.RECIPES).doc(review.recipeId).update({
+            totalReviews,
+            avgStar
+        }))
+        .then(() => onSubmitReviewSuccess());
+}
+
+export const getReviewsOfRecipe = async (recipeId, onGetReviewOfRecipeSuccess) => {
+    const snapshot = await firestore().collection(COLLECTION_NAME.REVIEWS)
+        .where('recipeId', '==', recipeId)
+        .get();
+
+    onGetReviewOfRecipeSuccess(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
 }

@@ -1,19 +1,62 @@
 import React, { useEffect, useState } from "react";
-import { ActivityIndicator, Dimensions, Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { TouchableOpacity, ActivityIndicator, Dimensions, Image, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { Icon, Button } from 'react-native-elements';
-
+import { Modal, ModalContent, SlideAnimation, ModalTitle } from 'react-native-modals';
+import { Rating, AirbnbRating } from 'react-native-elements';
+import auth from '@react-native-firebase/auth';
 
 import themes from '../../config/themes';
-import { getRecipeById, updateFavoritesList, updateRecipeStatus } from "../../apis/FoodRecipeApi";
+import { submitReview, getRecipeById, updateFavoritesList, updateRecipeStatus, getUserInformation } from "../../apis/FoodRecipeApi";
 import { RECIPE_STATUS } from "../../global/constants";
 import { useToast } from "react-native-toast-notifications";
 
+const ReviewPanel = ({ onSubmitReview }) => {
+
+    const [review, setReview] = useState({
+        star: 5,
+        comment: ''
+    });
+
+    return (
+        <View style={styles.rate}>
+            <AirbnbRating
+                count={5}
+                reviews={['Món ăn dở tệ', 'Sai công thức', 'Tạm được', 'Khá ngon', 'Xuất sắc']}
+                size={20}
+                style={{ paddingVertical: 10, fontSize: 11 }}
+                defaultRating={review.star}
+                onFinishRating={(star) => setReview({
+                    ...review,
+                    star
+                })}
+            />
+            <TextInput
+                placeholder="Nhận xét"
+                placeholderTextColor="#666666"
+                style={styles.textInput}
+                autoCapitalize="none"
+                multiline={true}
+                numberOfLines={12}
+                onChangeText={(val) => setReview({
+                    ...review,
+                    comment: val
+                })}
+            />
+            <Button
+                title='Gửi đánh giá'
+                buttonStyle={styles.buttonReviewInPopUp}
+                titleStyle={styles.buttonTitleReviewInPopUp}
+                onPress={() => onSubmitReview(review)}>
+            </Button>
+        </View>
+    )
+}
 
 const w = Dimensions.get("screen").width;
 
 const Step = ({ step, index }) => {
     return (
-        <View>
+        <View style={{ paddingBottom: 10 }}>
             <Text style={[styles.title, { color: themes.colors.main }]}>Bước {index + 1}</Text>
             <Text style={styles.text}>
                 {step}
@@ -41,26 +84,53 @@ const DetailScreen = ({ route, navigation }) => {
     const toast = useToast();
 
     const [recipe, setRecipe] = useState([]);
+    const [userInfor, setUserInfor] = useState({});
     const [loading, setLoading] = useState(false);
     const { id, favorites } = route.params;
 
     const [favorite, isFavorite] = useState(favorites.includes(id));
     const [tempFavorites, setTempFavorites] = useState([...favorites]);
     const [checkStatus, setCheckStatus] = useState(false);
-
+    const [modalVisible, setModalVisible] = useState(false);
+    const [permitReview, setPermitReview] = useState(true);
 
     useEffect(() => {
         fetchRecipe();
+        fetchUserInfor();
     }, []);
 
     const fetchRecipe = () => {
         setLoading(true);
         getRecipeById(id, (data) => {
             setRecipe(data);
+            setPermitReview(auth().currentUser.uid === data.uid)
             setLoading(false);
             setCheckStatus(data.status !== RECIPE_STATUS.APPROVED);
         })
     };
+
+    const fetchUserInfor = () => {
+        setLoading(true);
+        getUserInformation((data) => {
+            setUserInfor(data);
+            setLoading(false);
+        });
+    }
+
+    const onSubmitReview = (result) => {
+        setModalVisible(false);
+        const review = {
+            ...result,
+            uid: auth().currentUser.uid,
+            name: userInfor.name ?? '',
+            avatar: userInfor.avatar ?? '',
+            recipeId: id,
+        }
+
+        submitReview(review, recipe, () => {
+            console.log('Review success');
+        })
+    }
 
     const toggleFavorite = () => {
         isFavorite(!favorite);
@@ -129,9 +199,11 @@ const DetailScreen = ({ route, navigation }) => {
             navigation.goBack();
 
         })
+    }
 
-
-
+    const navigateToReviewsScreen = () => {
+        console.log('navigateToReviewsScreen');
+        navigation.navigate('RecipeReview', { id });
     }
 
     const onBack = () => navigation.goBack();
@@ -164,15 +236,18 @@ const DetailScreen = ({ route, navigation }) => {
             <View style={styles.subHeader}>
                 <View style={styles.body}>
                     <Text style={styles.titleItem}>{recipe.name}</Text>
-                    <View style={styles.starIcon}>
-                        {Array(5)
-                            .fill(0)
-                            .map((_, index) => (
-                                <Image key={index}
-                                    style={styles.star}
-                                    source={require("../../assets/icon/star.png")}
-                                />
-                            ))}
+                    <View style={styles.ratingOverview}>
+                        <Rating
+                            showRating
+                            readonly
+                            ratingCount={5}
+                            imageSize={20}
+                            startingValue={recipe.avgStar}
+                            showRating={false}
+                        />
+                        <TouchableOpacity onPress={() => navigateToReviewsScreen()}>
+                            <Text style={{ marginLeft: 5 }}>({recipe.totalReviews} Đánh giá)</Text>
+                        </TouchableOpacity>
                     </View>
                     <View style={styles.footerCard}>
                         <View style={styles.footerItem}>
@@ -206,24 +281,16 @@ const DetailScreen = ({ route, navigation }) => {
                 </ScrollView>
                 {renderListSteps()}
 
+                {
+                    permitReview
+                        ? null
+                        : <Button onPress={() => setModalVisible(true)}
+                            buttonStyle={styles.buttonReview}
+                            titleStyle={styles.buttotitleReview}
+                            title="Đánh giá công thức">
+                        </Button>
+                }
 
-
-                <View style={styles.rate}>
-                    <Text style={styles.titleRate}>Đánh giá công thức</Text>
-                    <View style={styles.starRate}>
-                        <Icon name='star-border'></Icon>
-                        <Icon name='star-border'></Icon>
-                        <Icon name='star-border'></Icon>
-                        <Icon name='star-border'></Icon>
-                        <Icon name='star-border'></Icon>
-                    </View>
-                    <Text>5/5</Text>
-                    <Button
-                        title="Gửi đánh giá"
-                        buttonStyle={styles.buttonSendRate}
-                        titleStyle={styles.buttonTitleSendRate}
-                        onPress={() => auth().signOut()}></Button>
-                </View>
 
                 {
                     checkStatus
@@ -247,6 +314,21 @@ const DetailScreen = ({ route, navigation }) => {
 
 
             </ScrollView>
+
+            <Modal
+                visible={modalVisible}
+                onTouchOutside={() => {
+                    setModalVisible(false);
+                }}
+                modalAnimation={new SlideAnimation({
+                    slideFrom: 'bottom',
+                })}
+                modalTitle={<ModalTitle title="Đánh giá công thức" />}
+            >
+                <ModalContent>
+                    <ReviewPanel onSubmitReview={onSubmitReview}></ReviewPanel>
+                </ModalContent>
+            </Modal>
 
         </View>
 
@@ -373,6 +455,9 @@ const styles = StyleSheet.create({
     },
     rate: {
         alignItems: 'center',
+        justifyContent: 'space-between',
+        width: 300,
+        height: 300,
     },
     titleRate: {
         fontSize: 16,
@@ -397,6 +482,44 @@ const styles = StyleSheet.create({
         textAlign: 'center'
     },
 
+    buttonReview: {
+        backgroundColor: 'transparent',
+        flexDirection: 'row',
+        justifyContent: 'center',
+        paddingBottom: 10,
+        marginHorizontal: 15,
+
+    },
+    buttotitleReview: {
+        color: themes.colors.main,
+        fontSize: 18,
+        fontWeight: '600',
+        borderWidth: 1,
+        borderRadius: 10,
+        borderColor: themes.colors.main,
+        paddingHorizontal: 15,
+        paddingVertical: 7,
+        width: 350,
+
+    },
+    buttonReviewInPopUp: {
+        backgroundColor: 'transparent',
+        flexDirection: 'row',
+        justifyContent: 'center',
+        marginHorizontal: 15,
+    },
+    buttonTitleReviewInPopUp: {
+        color: '#fff',
+        backgroundColor: themes.colors.main,
+        fontSize: 18,
+        fontWeight: '600',
+        borderWidth: 1,
+        borderRadius: 20,
+        borderColor: themes.colors.main,
+        paddingHorizontal: 15,
+        paddingVertical: 7,
+        
+    },
     buttonGroup: {
         flexDirection: 'row',
         justifyContent: 'center',
@@ -421,7 +544,20 @@ const styles = StyleSheet.create({
         paddingHorizontal: 15,
         paddingVertical: 7,
     },
-
-
+    textInput: {
+        marginVertical: 15,
+        width: '100%',
+        paddingLeft: 10,
+        color: '#05375a',
+        borderWidth: 1,
+        borderColor: themes.colors.main,
+        borderRadius: 5,
+        height: 150,
+    },
+    ratingOverview: {
+        flex: 1,
+        flexDirection: 'row',
+        marginTop: 10
+    }
 
 });

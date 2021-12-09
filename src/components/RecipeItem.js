@@ -1,43 +1,60 @@
 import React from "react";
 import { Image, Pressable, Dimensions, StyleSheet, Text, View } from 'react-native';
 import { Icon } from 'react-native-elements';
+import { useNavigationState } from "@react-navigation/core";
+
 
 import themes from "../config/themes";
 
 const w = Dimensions.get('screen').width;
 
-const RecipeItem = ({ onPress, recipe, isFavorite }) => {
-    return (
-        <Pressable style={styles.item} key={recipe.item.id} onPress={() => onPress(recipe.item.id)}>
-            <Image style={styles.image}  source={{uri: recipe.item.image}} />
-            <View style={styles.body}>
-                <Text style={styles.titleItem}>{recipe.item.name}</Text>
-                <View style={styles.starCon}>
-                    {Array(5)
-                        .fill(0)
-                        .map((_, index) => (
-                            <Image key={index}
-                                style={styles.star}
-                                source={require("../assets/icon/star.png")}
-                            />
-                        ))}
-                </View>
-                <View style={styles.footerCard}>
-                    <View style={styles.footerItem}>
-                        <Image source={require("../assets/icon/clock.png")} />
-                        <Text style={styles.footerItemText}>{recipe.item.time}</Text>
-                    </View>
-                    <Text style={styles.footerItemText}>{recipe.item.ingredients.length} Thành phần</Text>
-                    {/* <Text style={styles.footerItemText}>
-                        Ngày đăng: {new Date(recipe.item.createdAt.toDate()).toLocaleDateString()}
-                    </Text> */}
-                </View>
-                <Pressable style={styles.buttonHeart}>
-                    {isFavorite
-                        ? <Icon name='favorite' type='material' color='#029c59' />
-                        : <Icon name='favorite-border' type='material' color='#029c59' />}
-                </Pressable>
+const RecipeItem = ({ onPress, recipe, isFavorite, onEdit }) => {
+    const routes = useNavigationState(state => state.routes);
+    const canEdit = routes.slice(-1)[0].name === 'MyRecipe';
 
+    return (
+        <Pressable key={recipe.item.id} onPress={() => onPress(recipe.item.id)}>
+            {
+                canEdit
+                    ? <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                        <Text style={styles.postDate} >
+                            Ngày đăng: {new Date(recipe.item.createdAt.toDate()).toLocaleDateString()}
+                        </Text>
+                        <Icon name='dehaze' style='material' onPress={() => onEdit(recipe.item.id)}></Icon>
+                    </View>
+                    : null
+            }
+
+
+            <View style={styles.item}>
+                <Image style={styles.image} source={{ uri: recipe.item.image }} />
+                <View style={styles.body}>
+                    <Text style={styles.titleItem}>{recipe.item.name}</Text>
+                    <View style={styles.starCon}>
+                        {Array(5)
+                            .fill(0)
+                            .map((_, index) => (
+                                <Image key={index}
+                                    style={styles.star}
+                                    source={require("../assets/icon/star.png")}
+                                />
+                            ))}
+                    </View>
+                    <View style={styles.footerCard}>
+                        <View style={styles.footerItem}>
+                            <Image source={require("../assets/icon/clock.png")} />
+                            <Text style={styles.footerItemText}>{recipe.item.time}</Text>
+                        </View>
+                        <Text style={styles.footerItemText}>{recipe.item.ingredients.length} Thành phần</Text>
+
+                    </View>
+                    <Pressable style={styles.buttonHeart}>
+                        {isFavorite
+                            ? <Icon name='favorite' type='material' color='#029c59' />
+                            : <Icon name='favorite-border' type='material' color='#029c59' />}
+                    </Pressable>
+
+                </View>
             </View>
         </Pressable>
     )

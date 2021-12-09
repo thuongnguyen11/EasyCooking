@@ -47,7 +47,7 @@ const UserAvatar = ({ avatar, onAvatarPicked }) => {
                 :
                 <Image
                     style={styles.userImg}
-                    source={require('../../assets/image/thuong.jpg')}
+                    source={require('../../assets/image/avatar_default5.png')}
                 />
             }
             <TouchableOpacity onPress={pickAvatarHandler} style={styles.avatarEditIcon}>
