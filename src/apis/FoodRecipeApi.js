@@ -335,3 +335,13 @@ export const deleteRecipeItem = async (recipeId, onDeleteRecipeItemSuccess) => {
     await firestore().collection(COLLECTION_NAME.RECIPES).doc(recipeId).delete();
     onDeleteRecipeItemSuccess();
 }
+
+export const getPopularRecipes = async (onGetPopularRecipes)  => {
+    const snapshot = await firestore().collection(COLLECTION_NAME.RECIPES)
+        .where('status', '==', RECIPE_STATUS.APPROVED)
+        .orderBy('avgStar', 'desc')
+        .limit(15)
+        .get();
+        onGetPopularRecipes(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+
+}

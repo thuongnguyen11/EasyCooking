@@ -2,7 +2,7 @@ import { useNavigation } from "@react-navigation/core";
 import React, { useEffect, useState } from "react";
 import { StyleSheet, ScrollView, View, Text, Image, Button, TextInput, FlatList, Pressable } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { getRecipes, getApprovedRecipes } from "../../apis/FoodRecipeApi";
+import { getRecipes, getApprovedRecipes, getPopularRecipes } from "../../apis/FoodRecipeApi";
 import RecipePopular from "../../components/RecipePopular";
 import RecipesList from "../../components/RecipesList";
 
@@ -49,8 +49,12 @@ const MainScreen = () => {
 
             setLoading(false);
             setRecipes(recipeRandom);
-            setRecipesPopular(data);
         });
+        
+        getPopularRecipes((data) => {
+            setRecipesPopular(data);
+            setLoading(false);
+        })
 
         const user = auth().currentUser;
         const subscriber = firestore()
@@ -78,7 +82,7 @@ const MainScreen = () => {
                             {/* <Text style={styles.title}>Bạn muốn nấu món gì?</Text> */}
                             <View style={styles.titleIconCooking}>
                                 <Image source={require('../../assets/image/logo4.png')} style={{
-                                    width:180,
+                                    width: 180,
                                     height: 87,
                                 }}></Image>
                             </View>
@@ -116,7 +120,7 @@ const styles = StyleSheet.create({
     titleGroup: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        alignItems: "flex-end" ,
+        alignItems: "flex-end",
     },
     // title: {
     //     fontSize: 36,
