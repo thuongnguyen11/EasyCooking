@@ -634,13 +634,13 @@ const styles = StyleSheet.create({
     dropdownCategory: {
         backgroundColor: '#f0f2f1',
         borderRadius: 10,
-        width: 200,
+        width: 345,
         height: 40,
         justifyContent: 'center'
     },
     pickerCategory: {
         height: 50,
-        width: 200,
+        width: '100%',
         color: '#000'
 
     },

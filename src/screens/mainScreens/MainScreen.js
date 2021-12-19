@@ -25,7 +25,7 @@ const MainScreen = () => {
         navigation.navigate('Detail', { id, favorites });
     }
 
-    
+
 
     const onPressIconPending = () => {
         navigation.navigate('PendingRecipes');
@@ -57,9 +57,11 @@ const MainScreen = () => {
             .collection('users')
             .doc(user.uid)
             .onSnapshot(documentSnapshot => {
-                const data = documentSnapshot.data();
-                setFavorites(data.favorites);
-                setIsAdmin(data.type === 'ADMIN');
+                if (!!documentSnapshot) {
+                    const data = documentSnapshot.data();
+                    setFavorites(data.favorites);
+                    setIsAdmin(data.type === 'ADMIN');
+                }
             });
 
         return () => subscriber();
@@ -75,7 +77,10 @@ const MainScreen = () => {
                         <View style={styles.titleGroup}>
                             {/* <Text style={styles.title}>Bạn muốn nấu món gì?</Text> */}
                             <View style={styles.titleIconCooking}>
-                                <Image source={require('../../assets/icon/cooking4.png')}></Image>
+                                <Image source={require('../../assets/image/logo4.png')} style={{
+                                    width:180,
+                                    height: 87,
+                                }}></Image>
                             </View>
                             {
                                 isAdmin
@@ -87,9 +92,9 @@ const MainScreen = () => {
 
                         </View>
 
-
-                        <RecipePopular onPress={onPressItem} recipesPopular={recipesPopular} favorites={favorites} loading={loading}  />
-
+                        <View style={{ height: 280 }}>
+                            <RecipePopular onPress={onPressItem} recipesPopular={recipesPopular} favorites={favorites} loading={loading} />
+                        </View>
                         <Text style={styles.titleRecipesList}>Gợi ý cho bạn</Text>
 
                         <RecipesList onPress={onPressItem} recipes={recipes} favorites={favorites} loading={loading} />
@@ -111,7 +116,7 @@ const styles = StyleSheet.create({
     titleGroup: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        alignItems: 'center',
+        alignItems: "flex-end" ,
     },
     // title: {
     //     fontSize: 36,
@@ -122,7 +127,7 @@ const styles = StyleSheet.create({
     //     textShadowRadius: 7
     // },
     titleIconCooking: {
-        top: -5,
+
     },
     titleRecipesList: {
         color: themes.colors.main,

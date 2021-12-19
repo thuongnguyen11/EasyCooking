@@ -24,8 +24,10 @@ const PendingRecipesScreen = ({ route, navigation }) => {
             .collection('users')
             .doc(user.uid)
             .onSnapshot(documentSnapshot => {
-                const data = documentSnapshot.data();
-                setFavorites(data.favorites);
+                if (documentSnapshot) {
+                    const data = documentSnapshot.data();
+                    setFavorites(data.favorites);
+                }
             });
 
         return () => subscriber();

@@ -236,7 +236,7 @@ export const getRecipesFavorite = async (ids, onGetRecipesFavoriteSuccess) => {
     let recipesFavorite = [];
 
     const result = await Promise.all(ids.map(id => firestore().collection(COLLECTION_NAME.RECIPES).doc(id).get()));
-    recipesFavorite = result.map(r => ({ id: r.id, ...r.data() }));
+    recipesFavorite = result.filter(r => !!r.data()).map(r => ({ id: r.id, ...r.data() }));
 
     onGetRecipesFavoriteSuccess(recipesFavorite);
 }
@@ -263,12 +263,22 @@ export const getApprovedRecipes = async (onGetApprovedRecipesSuccess) => {
     onGetApprovedRecipesSuccess(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
 }
 
-export const updateRecipeStatus = async (recipeId, status, onUpdateRecipeStatus) => {
-    await firestore().collection(COLLECTION_NAME.RECIPES).doc(recipeId).update({
+export const updateRecipeStatus = async (recipeId, status, ownerId, onUpdateRecipeStatus) => {
+    firestore().collection(COLLECTION_NAME.RECIPES).doc(recipeId).update({
         status,
-    });
+    })
+        .then(() => {
+            const action = status === RECIPE_STATUS.APPROVED ? 'Phê duyệt' : 'Từ chối'
+            const notification = {
+                uid: ownerId,
+                createdAt: firestore.FieldValue.serverTimestamp(),
+                content: `Quản trị viên đã ${action} công thức của bạn.`,
+                avatar: '',
+            }
 
-    onUpdateRecipeStatus();
+            return firestore().collection(COLLECTION_NAME.NOTIFICATIONS).add(notification)
+        })
+        .then(() => onUpdateRecipeStatus());
 }
 
 export const submitReview = async (review, recipe, onSubmitReviewSuccess) => {
@@ -280,6 +290,16 @@ export const submitReview = async (review, recipe, onSubmitReviewSuccess) => {
             totalReviews,
             avgStar
         }))
+        .then(() => {
+            const displayName = !!review.name ? review.name : review.uid.substring(0, 6);
+            const notification = {
+                uid: recipe.uid,
+                createdAt: firestore.FieldValue.serverTimestamp(),
+                content: `${displayName} đã đánh giá công thức của bạn.`,
+                avatar: !!review.avatar ? review.avatar : '',
+            }
+            return firestore().collection(COLLECTION_NAME.NOTIFICATIONS).add(notification)
+        })
         .then(() => onSubmitReviewSuccess());
 }
 
@@ -289,4 +309,23 @@ export const getReviewsOfRecipe = async (recipeId, onGetReviewOfRecipeSuccess) =
         .get();
 
     onGetReviewOfRecipeSuccess(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+}
+
+export const getNotifications = async (onGetNotificationSuccess) => {
+    const user = auth().currentUser;
+    const snapshot = await firestore().collection(COLLECTION_NAME.NOTIFICATIONS)
+        .where('uid', '==', user.uid)
+        .get();
+
+    onGetNotificationSuccess(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+}
+
+export const isRecipeReviewed = async (recipeId, checkIfRecipeReviewed) => {
+    const user = auth().currentUser;
+    const existed = await firestore().collection(COLLECTION_NAME.REVIEWS)
+        .where('uid', '==', user.uid)
+        .where('recipeId', '==', recipeId)
+        .get();
+
+    checkIfRecipeReviewed(!!existed.docs.length);
 }

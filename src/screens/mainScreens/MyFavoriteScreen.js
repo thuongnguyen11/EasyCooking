@@ -25,14 +25,16 @@ const MyFavoriteScreen = ({ navigation }) => {
             .collection('users')
             .doc(user.uid)
             .onSnapshot(documentSnapshot => {
-                const data = documentSnapshot.data();
-                setFavorites(data.favorites);
+                if (documentSnapshot) {
+                    const data = documentSnapshot.data();
+                    setFavorites(data.favorites);
 
-                setLoading(true);
-                getRecipesFavorite(data.favorites, (data) => {
-                    setRecipes(data);
-                    setLoading(false);
-                });
+                    setLoading(true);
+                    getRecipesFavorite(data.favorites, (data) => {
+                        setRecipes(data);
+                        setLoading(false);
+                    });
+                }
             });
 
         return () => subscriber();
@@ -47,9 +49,7 @@ const MyFavoriteScreen = ({ navigation }) => {
                     <>
                         <View style={styles.titleGroup}>
                             <Text style={styles.title}>Kho yêu thích</Text>
-                            {/* <View style={styles.titleIconCooking}>
-                                <Image source={require('../../assets/icon/cooking4.png')}></Image>
-                            </View> */}
+
                         </View>
 
 
@@ -95,7 +95,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 15,
         paddingTop: 10,
     },
-    
+
     loading: {
         width: '100%',
         flex: 1,

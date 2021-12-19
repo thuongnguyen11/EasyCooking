@@ -6,7 +6,8 @@ export const USER_TYPE = {
 export const COLLECTION_NAME = {
     USERS: 'users',
     RECIPES: 'recipes',
-    REVIEWS: 'reviews'
+    REVIEWS: 'reviews',
+    NOTIFICATIONS: 'notifications',
 }
 
 export const RECIPE_STATUS = {

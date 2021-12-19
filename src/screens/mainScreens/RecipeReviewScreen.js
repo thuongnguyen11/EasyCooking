@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 
-import { View, Text, SafeAreaView, ScrollView, FlatList, StyleSheet, Image } from "react-native";
+import { View, Text, SafeAreaView, ScrollView, FlatList, StyleSheet, Image, ActivityIndicator } from "react-native";
 import { Rating } from "react-native-elements";
 import { getReviewsOfRecipe } from "../../apis/FoodRecipeApi";
 
@@ -34,18 +34,29 @@ const ReviewItem = ({ review }) => {
     )
 }
 
-const ReviewList = ({ reviews }) => {
+const ReviewList = ({ reviews, loading }) => {
     const renderItem = (review) => {
         return <ReviewItem review={review}></ReviewItem>
     }
     return (
         <View style={styles.container}>
-            <FlatList
-                listKey={(item) => item.tracking_code.toString()}
-                scrollEnabled={false}
-                data={reviews}
-                renderItem={renderItem}>
-            </FlatList>
+            {loading ?
+                <View style={{ width: '100%', height: '100%', position: 'absolute', zIndex: 9, top: 350}}>
+                    <ActivityIndicator size="large" color="red" />
+                </View>
+                : null
+            }
+            {
+                !loading && reviews && reviews.length === 0
+                    ? <Text style={{ width: '100%', height: '100%', textAlign: 'center', textAlignVertical: 'center' }}>Chưa có đánh giá</Text>
+                    : <FlatList
+                        listKey={(item) => item.tracking_code.toString()}
+                        scrollEnabled={false}
+                        data={reviews}
+                        renderItem={renderItem}>
+                    </FlatList>
+            }
+
         </View>
     )
 }
@@ -53,21 +64,24 @@ const ReviewList = ({ reviews }) => {
 export default RecipeReviewScreen = ({ route, navigation }) => {
     const { id } = route.params;
     const [reviews, setReviews] = useState([]);
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         fetchRecipeReviews();
     }, [])
 
     const fetchRecipeReviews = () => {
+        setLoading(true);
         getReviewsOfRecipe(id, (recipeReviews => {
+            setLoading(false);
             setReviews(recipeReviews);
         }))
     }
 
     return (
-        <SafeAreaView style={{backgroundColor: '#fff', flex: 1}}>
+        <SafeAreaView style={{ backgroundColor: '#fff', flex: 1 }}>
             <Text style={styles.title}>Tất cả đánh giá</Text>
-            <ReviewList reviews={reviews}></ReviewList>
+            <ReviewList reviews={reviews} loading={loading}></ReviewList>
         </SafeAreaView>
     )
 }
@@ -90,7 +104,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
     },
-    
+
     image: {
         width: 50,
         height: 50,
@@ -106,8 +120,8 @@ const styles = StyleSheet.create({
     item: {
         borderBottomWidth: 0.5,
         borderColor: '#9ea3a1',
-        paddingBottom: 15,
-        marginTop: -5
+        paddingBottom: 9,
+        marginTop: -10
     },
     commentItem: {
         paddingLeft: 65,

@@ -22,7 +22,7 @@ const RecipePopular = ({ onPress, recipesPopular, favorites, loading }) => {
     return (
         <View style={styles.container}>
             {loading ?
-                <View style={{ width: '100%', height: '100%', position: 'absolute', zIndex: 9 }}>
+                <View style={{ width: '100%', height: '100%', position: 'absolute', zIndex: 9, top: 140, }}>
                     <ActivityIndicator size="large" color="red" />
                 </View>
                 : null

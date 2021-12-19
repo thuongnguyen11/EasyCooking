@@ -468,16 +468,7 @@ const CreateRecipeScreen = ({ navigation }) => {
 
                                     </Picker>
                                 </View>
-                                {/* <TextInput
-                                    placeholder='Món nưóc'
-                                    value={category}
-                                    style={[styles.input, showValidationMessage('isValidCategory') ? styles.borderInputError : null]}
-                                    onChangeText={category => setCategory(category)}
-                                    onEndEditing={(e) => handleValidCategory(e.nativeEvent.text)}
-                                />
-                                {showValidationMessage('isValidCategory') ?
-                                    errorMsg('Phân loại') : null
-                                } */}
+                                
                             </View>
                             <View>
                                 <Text style={styles.titleIttem}>Mô tả</Text>
@@ -604,13 +595,15 @@ const styles = StyleSheet.create({
     dropdownCategory: {
         backgroundColor: '#f0f2f1',
         borderRadius: 10,
-        width: 200,
+        width: 345,
         height: 40,
-        justifyContent: 'center'
+        justifyContent: 'center',
+        marginLeft: 5,
+        
     },
     pickerCategory: {
         height: 50,
-        width: 200,
+        width: '100%',
         color: '#000'
 
     },

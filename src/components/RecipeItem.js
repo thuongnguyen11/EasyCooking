@@ -1,6 +1,6 @@
 import React from "react";
 import { Image, Pressable, Dimensions, StyleSheet, Text, View } from 'react-native';
-import { Icon } from 'react-native-elements';
+import { Icon, Rating } from 'react-native-elements';
 import { useNavigationState } from "@react-navigation/core";
 
 
@@ -13,7 +13,7 @@ const RecipeItem = ({ onPress, recipe, isFavorite, onEdit }) => {
     const canEdit = routes.slice(-1)[0].name === 'MyRecipe';
 
     return (
-        <Pressable key={recipe.item.id} onPress={() => onPress(recipe.item.id)}>
+        <Pressable style={styles.container} key={recipe.item.id} onPress={() => onPress(recipe.item.id)}>
             {
                 canEdit
                     ? <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
@@ -31,14 +31,16 @@ const RecipeItem = ({ onPress, recipe, isFavorite, onEdit }) => {
                 <View style={styles.body}>
                     <Text style={styles.titleItem}>{recipe.item.name}</Text>
                     <View style={styles.starCon}>
-                        {Array(5)
-                            .fill(0)
-                            .map((_, index) => (
-                                <Image key={index}
-                                    style={styles.star}
-                                    source={require("../assets/icon/star.png")}
-                                />
-                            ))}
+                        <View style={styles.ratingOverview}>
+                            <Rating
+                                showRating
+                                readonly
+                                ratingCount={5}
+                                imageSize={20}
+                                startingValue={recipe.item.avgStar}
+                                showRating={false}
+                            />
+                        </View>
                     </View>
                     <View style={styles.footerCard}>
                         <View style={styles.footerItem}>
@@ -68,13 +70,10 @@ const styles = StyleSheet.create({
         fontWeight: '600',
         color: 'gray',
     },
-    starCon: {
-        flexDirection: 'row',
-        marginVertical: 9,
+    container: {
+        marginTop: 15,
     },
-    star: {
-        marginRight: 5,
-    },
+    
     titleItem: {
         fontSize: 16,
         fontWeight: '600',
@@ -82,7 +81,6 @@ const styles = StyleSheet.create({
     item: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginVertical: 10,
     },
     body: {
         paddingHorizontal: 20,

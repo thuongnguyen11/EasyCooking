@@ -6,12 +6,12 @@ import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 
 import RecipesList from "../../components/RecipesList";
-import { getRecipes, searchRecipe, getMyRecipes} from "../../apis/FoodRecipeApi";
+import { getRecipes, searchRecipe, getMyRecipes } from "../../apis/FoodRecipeApi";
 
 const MyRecipeScreen = ({ navigation }) => {
     const [recipes, setRecipes] = useState([]);
     const [loading, setLoading] = useState(false);
-    const [favorites, setFavorites] = useState([]);    
+    const [favorites, setFavorites] = useState([]);
 
     const onPressItem = (id) => {
         navigation.navigate('Detail', { id, favorites });
@@ -31,8 +31,10 @@ const MyRecipeScreen = ({ navigation }) => {
             .collection('users')
             .doc(user.uid)
             .onSnapshot(documentSnapshot => {
-                const data = documentSnapshot.data();
-                setFavorites(data.favorites);
+                if (documentSnapshot) {
+                    const data = documentSnapshot.data();
+                    setFavorites(data.favorites);
+                }
             });
 
         return () => subscriber();
@@ -44,7 +46,7 @@ const MyRecipeScreen = ({ navigation }) => {
             setRecipes(data);
             setLoading(false);
         });
-       
+
     };
 
     return (
@@ -56,7 +58,6 @@ const MyRecipeScreen = ({ navigation }) => {
                     <>
                         <View style={styles.titleGroup}>
                             <Text style={styles.title}>Công thức của tôi</Text>
-                            
                         </View>
 
                         <RecipesList onPress={onPressItem} recipes={recipes} favorites={favorites} loading={loading} onEdit={onEditItem} />
@@ -100,7 +101,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 15,
         paddingTop: 10,
     },
-    
+
     loading: {
         width: '100%',
         flex: 1,
@@ -113,5 +114,5 @@ const styles = StyleSheet.create({
 
     },
 
-    
+
 })

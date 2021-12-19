@@ -7,7 +7,7 @@ import auth from '@react-native-firebase/auth';
 
 import RecipesList from "../../components/RecipesList";
 import themes from '../../config/themes';
-import { getRecipes, searchRecipe, getApprovedRecipes} from "../../apis/FoodRecipeApi";
+import { getApprovedRecipes } from "../../apis/FoodRecipeApi";
 import { removeVietnameseTones } from "../../global/utilities";
 
 const MostPopularScreen = ({ navigation }) => {
@@ -29,8 +29,10 @@ const MostPopularScreen = ({ navigation }) => {
             .collection('users')
             .doc(user.uid)
             .onSnapshot(documentSnapshot => {
-                const data = documentSnapshot.data();
-                setFavorites(data.favorites);
+                if (documentSnapshot) {
+                    const data = documentSnapshot.data();
+                    setFavorites(data.favorites);
+                }
             });
 
         return () => subscriber();
@@ -93,7 +95,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 15,
         paddingTop: 10,
     },
-    
+
     loading: {
         width: '100%',
         flex: 1,

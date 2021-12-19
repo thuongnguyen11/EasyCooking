@@ -25,7 +25,7 @@ const RecipesList = ({ onPress, recipes, favorites, loading, onEdit}) => {
     return (
         <View style={styles.container}>
             {loading ?
-                <View style={{ width: '100%', height: '100%', position: 'absolute', zIndex: 9 }}>
+                <View style={{ width: '100%', height: '100%', position: 'absolute', zIndex: 9, top: 60 }}>
                     <ActivityIndicator size="large" color="red" />
                 </View>
                 : null

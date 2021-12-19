@@ -6,7 +6,7 @@ import { Rating, AirbnbRating } from 'react-native-elements';
 import auth from '@react-native-firebase/auth';
 
 import themes from '../../config/themes';
-import { submitReview, getRecipeById, updateFavoritesList, updateRecipeStatus, getUserInformation } from "../../apis/FoodRecipeApi";
+import { submitReview, getRecipeById, updateFavoritesList, updateRecipeStatus, getUserInformation, isRecipeReviewed } from "../../apis/FoodRecipeApi";
 import { RECIPE_STATUS } from "../../global/constants";
 import { useToast } from "react-native-toast-notifications";
 
@@ -83,7 +83,7 @@ const Ingredient = ({ ingredient, index }) => {
 const DetailScreen = ({ route, navigation }) => {
     const toast = useToast();
 
-    const [recipe, setRecipe] = useState([]);
+    const [recipe, setRecipe] = useState({});
     const [userInfor, setUserInfor] = useState({});
     const [loading, setLoading] = useState(false);
     const { id, favorites } = route.params;
@@ -92,18 +92,20 @@ const DetailScreen = ({ route, navigation }) => {
     const [tempFavorites, setTempFavorites] = useState([...favorites]);
     const [checkStatus, setCheckStatus] = useState(false);
     const [modalVisible, setModalVisible] = useState(false);
-    const [permitReview, setPermitReview] = useState(true);
+    const [owner, setOwner] = useState(false);
+    const [reviewed, setReviewed] = useState(false);
 
     useEffect(() => {
         fetchRecipe();
         fetchUserInfor();
+        checkIfRecipeReviewed();
     }, []);
 
     const fetchRecipe = () => {
         setLoading(true);
         getRecipeById(id, (data) => {
             setRecipe(data);
-            setPermitReview(auth().currentUser.uid === data.uid)
+            setOwner(auth().currentUser.uid === data.uid)
             setLoading(false);
             setCheckStatus(data.status !== RECIPE_STATUS.APPROVED);
         })
@@ -117,18 +119,27 @@ const DetailScreen = ({ route, navigation }) => {
         });
     }
 
+    const checkIfRecipeReviewed = () => {
+        setLoading(true);
+        isRecipeReviewed(id, (data) => {
+            setReviewed(data);
+            setLoading(false);
+        });
+    }
+
     const onSubmitReview = (result) => {
         setModalVisible(false);
         const review = {
             ...result,
             uid: auth().currentUser.uid,
-            name: userInfor.name ?? '',
+            name: userInfor.name ? userInfor.name : auth().currentUser.uid.substring(0, 6),
             avatar: userInfor.avatar ?? '',
             recipeId: id,
         }
 
         submitReview(review, recipe, () => {
-            console.log('Review success');
+            checkIfRecipeReviewed();
+            fetchRecipe();
         })
     }
 
@@ -175,7 +186,8 @@ const DetailScreen = ({ route, navigation }) => {
         });
 
         setLoading(true);
-        updateRecipeStatus(id, status, () => {
+        const ownerId = recipe.uid;
+        updateRecipeStatus(id, status, ownerId, () => {
 
             setLoading(false);
             if (status === RECIPE_STATUS.APPROVED) {
@@ -282,7 +294,7 @@ const DetailScreen = ({ route, navigation }) => {
                 {renderListSteps()}
 
                 {
-                    permitReview
+                    owner || reviewed
                         ? null
                         : <Button onPress={() => setModalVisible(true)}
                             buttonStyle={styles.buttonReview}
@@ -518,7 +530,7 @@ const styles = StyleSheet.create({
         borderColor: themes.colors.main,
         paddingHorizontal: 15,
         paddingVertical: 7,
-        
+
     },
     buttonGroup: {
         flexDirection: 'row',

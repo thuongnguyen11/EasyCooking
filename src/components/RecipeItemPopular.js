@@ -1,7 +1,7 @@
 import React from "react";
 import { useNavigation } from "@react-navigation/core";
 import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { Icon } from 'react-native-elements';
+import { Icon, Rating } from 'react-native-elements';
 
 import themes from "../config/themes";
 
@@ -9,14 +9,20 @@ import themes from "../config/themes";
 const RecipeItemPopular = ({ onPress, recipePopular, isFavorite }) => {
     return (
         <Pressable style={styles.itemContainer} key={recipePopular.item.id} onPress={() => onPress(recipePopular.item.id)} >
-            <Image style={styles.image} source={{uri: recipePopular.item.image}} />
+            <Image style={styles.image} source={{ uri: recipePopular.item.image }} />
             <View style={styles.cardItem}>
                 <Text style={styles.titleItem}>{recipePopular.item.name}</Text>
                 <View style={styles.starCon}>
-                    {Array(5)
-                        .fill(0)
-                        .map((_, index) => (
-                            <Image key={index} style={styles.star} source={require("../assets/icon/star.png")} />))}
+                    <View style={styles.ratingOverview}>
+                        <Rating
+                            showRating
+                            readonly
+                            ratingCount={5}
+                            imageSize={20}
+                            startingValue={recipePopular.item.avgStar}
+                            showRating={false}
+                        />
+                    </View>
                 </View>
 
                 <View style={styles.footerItem}>
@@ -63,7 +69,7 @@ const styles = StyleSheet.create({
     itemContainer: {
         backgroundColor: '#fff',
         shadowColor: 'gray',
-        shadowOffset: { width: 0, height:  2},
+        shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.3,
         // shadowRadius: 10,
         elevation: 5,
