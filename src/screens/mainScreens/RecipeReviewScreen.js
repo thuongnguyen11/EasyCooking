@@ -51,7 +51,7 @@ const ReviewList = ({ reviews, loading }) => {
                     ? <Text style={{ width: '100%', height: '100%', textAlign: 'center', textAlignVertical: 'center' }}>Chưa có đánh giá</Text>
                     : <FlatList
                         listKey={(item) => item.tracking_code.toString()}
-                        scrollEnabled={false}
+                        scrollEnabled={true}
                         data={reviews}
                         renderItem={renderItem}>
                     </FlatList>

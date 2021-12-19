@@ -41,7 +41,7 @@ const NotificationList = ({ notifications, loading }) => {
                     ? <Text style={{ width: '100%', height: '100%', textAlign: 'center', textAlignVertical: 'center' }}>Chưa có thông báo</Text>
                     : <FlatList
                         listKey={(item) => item.tracking_code.toString()}
-                        scrollEnabled={false}
+                        scrollEnabled={true}
                         data={notifications}
                         renderItem={renderItem}>
                     </FlatList>
@@ -89,6 +89,7 @@ const styles = StyleSheet.create({
     },
     container: {
         paddingHorizontal: 10,
+        paddingBottom: 70
     },
     poster: {
         marginTop: 20,
