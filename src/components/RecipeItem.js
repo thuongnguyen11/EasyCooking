@@ -1,16 +1,20 @@
-import React from "react";
+import React, { useState } from "react";
 import { Image, Pressable, Dimensions, StyleSheet, Text, View } from 'react-native';
 import { Icon, Rating } from 'react-native-elements';
 import { useNavigationState } from "@react-navigation/core";
+import { Modal, ModalFooter, ModalButton, ModalContent, SlideAnimation, ModalTitle } from 'react-native-modals';
 
 
 import themes from "../config/themes";
 
 const w = Dimensions.get('screen').width;
 
-const RecipeItem = ({ onPress, recipe, isFavorite, onEdit }) => {
+
+
+const RecipeItem = ({ onPress, recipe, isFavorite, onEdit, onDelete }) => {
     const routes = useNavigationState(state => state.routes);
     const canEdit = routes.slice(-1)[0].name === 'MyRecipe';
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
 
     return (
         <Pressable style={styles.container} key={recipe.item.id} onPress={() => onPress(recipe.item.id)}>
@@ -20,11 +24,45 @@ const RecipeItem = ({ onPress, recipe, isFavorite, onEdit }) => {
                         <Text style={styles.postDate} >
                             Ngày đăng: {new Date(recipe.item.createdAt.toDate()).toLocaleDateString()}
                         </Text>
-                        <Icon name='dehaze' style='material' onPress={() => onEdit(recipe.item.id)}></Icon>
+                        <View style={{ flexDirection: 'row' }}>
+                            <Pressable onPress={() => setShowDeleteModal(true)}>
+                                <Image style={{ marginRight: 10 }} source={require('../assets/icon/pencil.png')} ></Image>
+                            </Pressable>
+                            <Icon name='dehaze' style='material' onPress={() => onEdit(recipe.item.id)}></Icon>
+                        </View>
                     </View>
                     : null
             }
 
+            <Modal
+                visible={showDeleteModal}
+                onTouchOutside={() => {
+                    setModalVisible(false);
+                }}
+                modalAnimation={new SlideAnimation({
+                    slideFrom: 'bottom',
+                })}
+                modalTitle={<ModalTitle title="Bạn muốn xóa công thức này?" />}
+                footer={
+                    <ModalFooter>
+                        <ModalButton
+                            text="Hủy bỏ"
+                            onPress={() => setShowDeleteModal(false)}
+                        />
+                        <ModalButton
+                            text="Xóa"
+                            onPress={() => {
+                                onDelete(recipe.item.id);
+                                setShowDeleteModal(false);
+                            }}
+                        />
+                    </ModalFooter>
+                }
+            >
+                <ModalContent>
+                    <Text>Bạn có chắc chắn muốn xoá món {recipe.item.name} không?</Text>
+                </ModalContent>
+            </Modal>
 
             <View style={styles.item}>
                 <Image style={styles.image} source={{ uri: recipe.item.image }} />
@@ -73,7 +111,7 @@ const styles = StyleSheet.create({
     container: {
         marginTop: 15,
     },
-    
+
     titleItem: {
         fontSize: 16,
         fontWeight: '600',

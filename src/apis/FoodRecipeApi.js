@@ -5,6 +5,7 @@ import auth from '@react-native-firebase/auth';
 
 import { COLLECTION_NAME, RECIPE_STATUS } from '../global/constants';
 import { getKeywords } from '../global/utilities';
+import { NavigationHelpersContext } from '@react-navigation/native';
 
 
 const uploadImage = async (recipeId, ingredient) => {
@@ -328,4 +329,9 @@ export const isRecipeReviewed = async (recipeId, checkIfRecipeReviewed) => {
         .get();
 
     checkIfRecipeReviewed(!!existed.docs.length);
+}
+
+export const deleteRecipeItem = async (recipeId, onDeleteRecipeItemSuccess) => {
+    await firestore().collection(COLLECTION_NAME.RECIPES).doc(recipeId).delete();
+    onDeleteRecipeItemSuccess();
 }

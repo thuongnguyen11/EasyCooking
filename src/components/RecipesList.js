@@ -6,7 +6,7 @@ import RecipeItem from "./RecipeItem";
 
 const w = Dimensions.get('screen').width;
 
-const RecipesList = ({ onPress, recipes, favorites, loading, onEdit}) => {
+const RecipesList = ({ onPress, recipes, favorites, loading, onEdit, onDelete}) => {
     const [selected, setSelected] = useState(0);
 
     const onScroll = ({ nativeEvent }) => {
@@ -19,7 +19,8 @@ const RecipesList = ({ onPress, recipes, favorites, loading, onEdit}) => {
             onPress={onPress}
             recipe={recipe}
             isFavorite={favorites?.includes(recipe.item.id)} 
-            onEdit={onEdit}/>
+            onEdit={onEdit}
+            onDelete={onDelete}/>
     };
 
     return (

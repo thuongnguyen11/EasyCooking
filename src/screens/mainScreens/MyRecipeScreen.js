@@ -6,7 +6,7 @@ import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 
 import RecipesList from "../../components/RecipesList";
-import { getRecipes, searchRecipe, getMyRecipes } from "../../apis/FoodRecipeApi";
+import { getRecipes, searchRecipe, getMyRecipes, deleteRecipeItem } from "../../apis/FoodRecipeApi";
 
 const MyRecipeScreen = ({ navigation }) => {
     const [recipes, setRecipes] = useState([]);
@@ -40,6 +40,13 @@ const MyRecipeScreen = ({ navigation }) => {
         return () => subscriber();
     }, []);
 
+    const onDeleteItem = (id) => {
+        deleteRecipeItem(id, () => {
+            const newRecipes = recipes.filter(r => r.id !== id);
+            setRecipes(newRecipes);
+        })
+    }
+
     const fetchRecipes = () => {
         setLoading(true);
         getMyRecipes((data) => {
@@ -60,7 +67,7 @@ const MyRecipeScreen = ({ navigation }) => {
                             <Text style={styles.title}>Công thức của tôi</Text>
                         </View>
 
-                        <RecipesList onPress={onPressItem} recipes={recipes} favorites={favorites} loading={loading} onEdit={onEditItem} />
+                        <RecipesList onPress={onPressItem} recipes={recipes} favorites={favorites} loading={loading} onEdit={onEditItem} onDelete={onDeleteItem} />
                     </>
                 }>
 
