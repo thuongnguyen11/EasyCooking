@@ -61,7 +61,8 @@ const styles = StyleSheet.create({
         // // paddingVertical: 10,
     },
     title: {
-        color: themes.colors.text,
+        color: themes.colors.main,
+        marginBottom: 10,
         fontSize: 20,
         fontWeight: '600',
     },

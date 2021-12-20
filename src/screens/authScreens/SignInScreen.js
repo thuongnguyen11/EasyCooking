@@ -90,7 +90,7 @@ const SignInScreen = ({ navigation, onSignIn }) => {
         <View style={styles.container}>
             <StatusBar backgroundColor='#029c59' barStyle="light-content" />
             <View style={styles.header}>
-                <Text style={styles.text_header}>Welcome!</Text>
+                <Text style={styles.text_header}>Chào mừng bạn đến với EasyCooking!</Text>
             </View>
             <Animatable.View
                 animation="fadeInUpBig"
@@ -108,7 +108,7 @@ const SignInScreen = ({ navigation, onSignIn }) => {
                         size={20}
                     />
                     <TextInput
-                        placeholder="Your Email"
+                        placeholder="Nhập Email"
                         placeholderTextColor="#666666"
                         style={[styles.textInput, {
                             color: colors.text
@@ -131,7 +131,7 @@ const SignInScreen = ({ navigation, onSignIn }) => {
                 </View>
                 {data.isValidUser ? null :
                     <Animatable.View animation="fadeInLeft" duration={500}>
-                        <Text style={styles.errorMsg}>Username must be 4 characters long.</Text>
+                        <Text style={styles.errorMsg}>Email phải lớn hơn 10 ký tự.</Text>
                     </Animatable.View>
                 }
 
@@ -139,7 +139,7 @@ const SignInScreen = ({ navigation, onSignIn }) => {
                 <Text style={[styles.text_footer, {
                     color: colors.text,
                     marginTop: 35
-                }]}>Password</Text>
+                }]}>Mật khẩu</Text>
                 <View style={styles.action}>
                     <Feather
                         name="lock"
@@ -147,7 +147,7 @@ const SignInScreen = ({ navigation, onSignIn }) => {
                         size={20}
                     />
                     <TextInput
-                        placeholder="Your Password"
+                        placeholder="Nhập mật khẩu"
                         placeholderTextColor="#666666"
                         secureTextEntry={data.secureTextEntry ? true : false}
                         style={[styles.textInput, {
@@ -176,13 +176,13 @@ const SignInScreen = ({ navigation, onSignIn }) => {
                 </View>
                 {data.isValidPassword ? null :
                     <Animatable.View animation="fadeInLeft" duration={500}>
-                        <Text style={styles.errorMsg}>Password must be 6 characters long.</Text>
+                        <Text style={styles.errorMsg}>Mật khẩu phải từ 6 kí tự trở lên.</Text>
                     </Animatable.View>
                 }
 
 
                 <TouchableOpacity>
-                    <Text style={{ color: '#029c59', marginTop: 15 }}>Forgot password?</Text>
+                    <Text style={{ color: '#029c59', marginTop: 15 }}>Quên mật khẩu</Text>
                 </TouchableOpacity>
                 <View style={styles.button}>
                     <TouchableOpacity
@@ -197,7 +197,7 @@ const SignInScreen = ({ navigation, onSignIn }) => {
                         >
                             <Text style={[styles.textSign, {
                                 color: '#fff'
-                            }]}>Sign In</Text>
+                            }]}>Đăng nhập</Text>
                         </LinearGradient>
                     </TouchableOpacity>
 
@@ -211,7 +211,7 @@ const SignInScreen = ({ navigation, onSignIn }) => {
                     >
                         <Text style={[styles.textSign, {
                             color: '#029c59'
-                        }]}>Sign Up</Text>
+                        }]}>Đăng ký</Text>
                     </TouchableOpacity>
                 </View>
             </Animatable.View>

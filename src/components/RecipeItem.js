@@ -6,6 +6,8 @@ import { Modal, ModalFooter, ModalButton, ModalContent, SlideAnimation, ModalTit
 
 
 import themes from "../config/themes";
+import { color } from "react-native-elements/dist/helpers";
+import { Colors } from "react-native/Libraries/NewAppScreen";
 
 const w = Dimensions.get('screen').width;
 
@@ -15,6 +17,8 @@ const RecipeItem = ({ onPress, recipe, isFavorite, onEdit, onDelete }) => {
     const routes = useNavigationState(state => state.routes);
     const canEdit = routes.slice(-1)[0].name === 'MyRecipe';
     const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [modalVisible, setModalVisible] = useState(false);
+
 
     return (
         <Pressable style={styles.container} key={recipe.item.id} onPress={() => onPress(recipe.item.id)}>
@@ -25,10 +29,10 @@ const RecipeItem = ({ onPress, recipe, isFavorite, onEdit, onDelete }) => {
                             Ngày đăng: {new Date(recipe.item.createdAt.toDate()).toLocaleDateString()}
                         </Text>
                         <View style={{ flexDirection: 'row' }}>
-                            <Pressable onPress={() => setShowDeleteModal(true)}>
+                            <Pressable onPress={() => onEdit(recipe.item.id)}>
                                 <Image style={{ marginRight: 10 }} source={require('../assets/icon/pencil.png')} ></Image>
                             </Pressable>
-                            <Icon name='dehaze' style='material' onPress={() => onEdit(recipe.item.id)}></Icon>
+                            <Icon name='dehaze' style='material' onPress={() => setShowDeleteModal(true)}></Icon>
                         </View>
                     </View>
                     : null
@@ -46,10 +50,12 @@ const RecipeItem = ({ onPress, recipe, isFavorite, onEdit, onDelete }) => {
                 footer={
                     <ModalFooter>
                         <ModalButton
+                            textStyle={{color: '#029c59'}}
                             text="Hủy bỏ"
                             onPress={() => setShowDeleteModal(false)}
                         />
                         <ModalButton
+                            textStyle={{color: '#029c59'}}
                             text="Xóa"
                             onPress={() => {
                                 onDelete(recipe.item.id);
@@ -113,16 +119,23 @@ const styles = StyleSheet.create({
     },
 
     titleItem: {
-        fontSize: 16,
+        fontSize: 15,
         fontWeight: '600',
+        paddingRight: 40,
     },
     item: {
         flexDirection: 'row',
         alignItems: 'center',
     },
+    starCon: {
+        flexDirection: 'row',
+        marginVertical: 9,
+    },
     body: {
-        paddingHorizontal: 20,
+        paddingLeft: 16,
+        paddingRight: 5,
         flex: 1,
+
     },
     header: {
         flexDirection: 'row',
@@ -160,7 +173,7 @@ const styles = StyleSheet.create({
     },
     buttonHeart: {
         position: 'absolute',
-        right: 15,
+        right: 5,
         top: 1,
     },
     itemScroll: {

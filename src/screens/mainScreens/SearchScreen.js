@@ -103,12 +103,13 @@ const styles = StyleSheet.create({
     SafeAreaView: {
         flex: 1,
         backgroundColor: '#FFF',
+
     },
     titleGroup: {
         flexDirection: 'row',
     },
     title: {
-        fontSize: 36,
+        fontSize: 30,
         fontWeight: '500',
         color: '#029c59',
         textShadowColor: 'rgba(130, 237, 191, 0.9)',
@@ -118,13 +119,15 @@ const styles = StyleSheet.create({
     titleIconCooking: {
         position: 'absolute',
         left: 60,
-        top: 25,
+        top: 30,
     },
     container: {
         flex: 1,
         backgroundColor: '#FFF',
         paddingHorizontal: 15,
         paddingTop: 10,
+    //    paddingBottom: 20,
+
     },
     searchContainer: {
         flexDirection: 'row',

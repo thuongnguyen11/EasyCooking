@@ -73,14 +73,14 @@ const SignInScreen = ({ navigation, onCreateUser }) => {
         <View style={styles.container}>
             <StatusBar backgroundColor='#029c59' barStyle="light-content" />
             <View style={styles.header}>
-                <Text style={styles.text_header}>Register Now!</Text>
+                <Text style={styles.text_header}>Đăng ký ngay!</Text>
             </View>
             <Animatable.View
                 animation="fadeInUpBig"
                 style={styles.footer}
             >
                 <ScrollView>
-                    <Text style={styles.text_footer}>Username</Text>
+                    <Text style={styles.text_footer}>Email</Text>
                     <View style={styles.action}>
                         <FontAwesome
                             name="user-o"
@@ -88,7 +88,7 @@ const SignInScreen = ({ navigation, onCreateUser }) => {
                             size={20}
                         />
                         <TextInput
-                            placeholder="Your Username"
+                            placeholder="Nhập email"
                             style={styles.textInput}
                             autoCapitalize="none"
                             onChangeText={(val) => textInputChange(val)}
@@ -108,7 +108,7 @@ const SignInScreen = ({ navigation, onCreateUser }) => {
 
                     <Text style={[styles.text_footer, {
                         marginTop: 35
-                    }]}>Password</Text>
+                    }]}>Mật khẩu</Text>
                     <View style={styles.action}>
                         <Feather
                             name="lock"
@@ -116,7 +116,7 @@ const SignInScreen = ({ navigation, onCreateUser }) => {
                             size={20}
                         />
                         <TextInput
-                            placeholder="Your Password"
+                            placeholder="Nhập mật khẩu"
                             secureTextEntry={data.secureTextEntry ? true : false}
                             style={styles.textInput}
                             autoCapitalize="none"
@@ -143,7 +143,7 @@ const SignInScreen = ({ navigation, onCreateUser }) => {
 
                     <Text style={[styles.text_footer, {
                         marginTop: 35
-                    }]}>Confirm Password</Text>
+                    }]}>Xác nhận mật khẩu</Text>
                     <View style={styles.action}>
                         <Feather
                             name="lock"
@@ -151,7 +151,7 @@ const SignInScreen = ({ navigation, onCreateUser }) => {
                             size={20}
                         />
                         <TextInput
-                            placeholder="Confirm Your Password"
+                            placeholder="Nhập xác nhận mật khẩu"
                             secureTextEntry={data.confirm_secureTextEntry ? true : false}
                             style={styles.textInput}
                             autoCapitalize="none"
@@ -175,14 +175,7 @@ const SignInScreen = ({ navigation, onCreateUser }) => {
                             }
                         </TouchableOpacity>
                     </View>
-                    <View style={styles.textPrivate}>
-                        <Text style={styles.color_textPrivate}>
-                            By signing up you agree to our
-                        </Text>
-                        <Text style={[styles.color_textPrivate, { fontWeight: 'bold' }]}>{" "}Terms of service</Text>
-                        <Text style={styles.color_textPrivate}>{" "}and</Text>
-                        <Text style={[styles.color_textPrivate, { fontWeight: 'bold' }]}>{" "}Privacy policy</Text>
-                    </View>
+                    
                     <View style={styles.button}>
                         <TouchableOpacity
                             style={styles.signIn}
@@ -194,7 +187,7 @@ const SignInScreen = ({ navigation, onCreateUser }) => {
                             >
                                 <Text style={[styles.textSign, {
                                     color: '#fff'
-                                }]}>Sign Up</Text>
+                                }]}>Đăng ký</Text>
                             </LinearGradient>
                         </TouchableOpacity>
 
@@ -208,7 +201,7 @@ const SignInScreen = ({ navigation, onCreateUser }) => {
                         >
                             <Text style={[styles.textSign, {
                                 color: '#029c59'
-                            }]}>Sign In</Text>
+                            }]}>Đăng nhập</Text>
                         </TouchableOpacity>
                     </View>
                 </ScrollView>

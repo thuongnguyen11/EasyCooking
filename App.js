@@ -36,6 +36,9 @@ import PendingRecipesScreen from "./src/screens/mainScreens/PendingRecipesScreen
 import EditRecipeScreen from "./src/screens/mainScreens/EditRecipeScreen";
 import RecipeReviewScreen from "./src/screens/mainScreens/RecipeReviewScreen";
 
+import themes from "./src/config/themes";
+
+
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -78,7 +81,7 @@ export default function App() {
           .then(() => setAuthState(USER_TYPE.USER));
       }).catch(error => {
         if (error.code === 'auth/invalid-email') {
-          ToastAndroid.show("Email/password is not correct!", ToastAndroid.SHORT);
+          ToastAndroid.show("Email/Mật khẩu is không hợp lệ!", ToastAndroid.SHORT);
         }
         console.log(error);
       })
@@ -89,7 +92,7 @@ export default function App() {
       .then(() => console.log('OK'))
       .catch(error => {
         if (error.code === 'auth/user-not-found') {
-          ToastAndroid.show("Email/password is not correct!", ToastAndroid.SHORT);
+          ToastAndroid.show("Email/password is không chính xác!", ToastAndroid.SHORT);
         }
         console.log(error);
       })
@@ -172,7 +175,7 @@ export default function App() {
               maxWidth: "85%",
               paddingHorizontal: 30,
               paddingVertical: 30,
-              backgroundColor: "#d6b704",
+              backgroundColor: "#abebb5",
               marginVertical: 4,
               borderRadius: 8,
               borderLeftColor: "#00C851",
@@ -184,13 +187,13 @@ export default function App() {
             <Text
               style={{
                 fontSize: 18,
-                color: "#000",
-                fontWeight: "bold",
+                fontWeight: '700',
+                color: '#037041',
               }}
             >
               {toast.data.title}
             </Text>
-            <Text style={{ color: "#fff", marginTop: 2, fontSize: 16 }}>{toast.message}</Text>
+            <Text style={{ color: themes.colors.main, marginTop: 2, fontSize: 16 }}>{toast.message}</Text>
           </View>
         ),
         with_close_button: (toast) => (

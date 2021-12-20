@@ -244,7 +244,7 @@ const UserProfileScreen = ({ onPress }) => {
     const onBack = () => navigation.goBack();
 
     return (
-        <SafeAreaView style={{ flex: 1, }}>
+        <SafeAreaView style={{ flex: 1, backgroundColor: '#fff'}}>
             {loading ?
                 <View style={{ width: '100%', justifyContent: 'center', alignItems: 'center', height: '100%', position: 'absolute', zIndex: 99, backgroundColor: 'rgba(2, 156, 89, 0.2)' }}>
                     <ActivityIndicator size="large" color="red" />
@@ -268,7 +268,7 @@ const UserProfileScreen = ({ onPress }) => {
                                         {
                                             editingControls.name ?
                                                 <TextInput defaultValue={userInfor.name}
-                                                    placeholder='Your name'
+                                                    placeholder='Tên của bạn'
                                                     showSoftInputOnFocus={true}
                                                     style={styles.editTextInput}
                                                     maxLength={50}
@@ -276,7 +276,7 @@ const UserProfileScreen = ({ onPress }) => {
                                                 </TextInput>
                                                 :
                                                 <Text style={styles.displayUserName}>
-                                                    {!!userInfor.name ? userInfor.name : '[Enter your name]'}
+                                                    {!!userInfor.name ? userInfor.name : '[Nhập tên của bạn]'}
                                                 </Text>
                                         }
 
@@ -346,7 +346,7 @@ const UserProfileScreen = ({ onPress }) => {
                                 <View style={styles.picker}>
                                     <Picker
                                         selectedValue={userInfor.sex ?? 'male'}
-                                        style={{ height: 50, width: 120, color: '#6b6e6d' }}
+                                        style={{ height: 50, width: 140, color: '#6b6e6d' }}
                                         onValueChange={onSaveSex}
                                     >
                                         <Picker.Item label="Nữ" value="female" />
@@ -364,14 +364,14 @@ const UserProfileScreen = ({ onPress }) => {
                                     {
                                         editingControls.phoneNumber ?
                                             <TextInput defaultValue={userInfor.phoneNumber}
-                                                placeholder='Your Phone Number'
+                                                placeholder='VD: 0977113803'
                                                 showSoftInputOnFocus={true}
                                                 editable={editingControls.phoneNumber}
                                                 style={styles.editTextInput}
                                                 onChangeText={onPhoneNumberChange}>
                                             </TextInput>
                                             :
-                                            <Text style={styles.displayPhoneNumber}>{!!userInfor.phoneNumber ? userInfor.phoneNumber : '[Enter your phone number]'}</Text>
+                                            <Text style={styles.displayPhoneNumber}>{!!userInfor.phoneNumber ? userInfor.phoneNumber : '[Nhập số điện thoại]'}</Text>
                                     }
                                 </View>
                                 {editingControls.phoneNumber ?
@@ -453,9 +453,10 @@ const styles = StyleSheet.create({
     headerCard: {
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'space-between',
+        justifyContent: "center",
         width: '60%',
         marginBottom: 15,
+        
     },
     myRecipe: {
         fontSize: 14,
@@ -464,8 +465,7 @@ const styles = StyleSheet.create({
         borderWidth: 2,
         borderRadius: 10,
         padding: 10,
-        marginHorizontal: 15,
-        marginLeft: -37,
+        marginHorizontal: 10,
         borderColor: themes.colors.main,
     },
     favorites: {
@@ -476,6 +476,7 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         padding: 10,
         marginHorizontal: 10,
+
         borderColor: themes.colors.main,
 
     },
@@ -507,8 +508,8 @@ const styles = StyleSheet.create({
     },
     avatarEditIcon: {
         position: 'absolute',
-        bottom: 20,
-        right: -270,
+        bottom: 12,
+        right: -285,
         width: '100%',
 
     },

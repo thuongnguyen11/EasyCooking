@@ -4,9 +4,10 @@ import { Icon, Button } from 'react-native-elements';
 import { Modal, ModalContent, SlideAnimation, ModalTitle } from 'react-native-modals';
 import { Rating, AirbnbRating } from 'react-native-elements';
 import auth from '@react-native-firebase/auth';
+import firestore from '@react-native-firebase/firestore';
 
 import themes from '../../config/themes';
-import { submitReview, getRecipeById, updateFavoritesList, updateRecipeStatus, getUserInformation, isRecipeReviewed } from "../../apis/FoodRecipeApi";
+import { submitReview, getRecipeById, updateFavoritesList, updateRecipeStatus, getUserInformation, isRecipeReviewed, getOwnerRecipe } from "../../apis/FoodRecipeApi";
 import { RECIPE_STATUS } from "../../global/constants";
 import { useToast } from "react-native-toast-notifications";
 
@@ -84,6 +85,7 @@ const DetailScreen = ({ route, navigation }) => {
     const toast = useToast();
 
     const [recipe, setRecipe] = useState({});
+    const [user, setUser] = useState({});
     const [userInfor, setUserInfor] = useState({});
     const [loading, setLoading] = useState(false);
     const { id, favorites } = route.params;
@@ -94,6 +96,8 @@ const DetailScreen = ({ route, navigation }) => {
     const [modalVisible, setModalVisible] = useState(false);
     const [owner, setOwner] = useState(false);
     const [reviewed, setReviewed] = useState(false);
+    const [isAdmin, setIsAdmin] = useState(false);
+
 
     useEffect(() => {
         fetchRecipe();
@@ -101,14 +105,37 @@ const DetailScreen = ({ route, navigation }) => {
         checkIfRecipeReviewed();
     }, []);
 
+
     const fetchRecipe = () => {
-        setLoading(true);
+
         getRecipeById(id, (data) => {
             setRecipe(data);
             setOwner(auth().currentUser.uid === data.uid)
             setLoading(false);
             setCheckStatus(data.status !== RECIPE_STATUS.APPROVED);
+
+            getOwnerRecipe(data.uid, (user) => {
+                setUser(user)
+                console.log(user);
+            })
+
         })
+
+
+        const user = auth().currentUser;
+        const subscriber = firestore()
+            .collection('users')
+            .doc(user.uid)
+            .onSnapshot(documentSnapshot => {
+                if (!!documentSnapshot) {
+                    const data = documentSnapshot.data();
+                    setIsAdmin(data.type === 'ADMIN');
+                }
+            });
+
+        return () => subscriber();
+
+
     };
 
     const fetchUserInfor = () => {
@@ -280,13 +307,26 @@ const DetailScreen = ({ route, navigation }) => {
                 paddingBottom: 56,
             }}>
                 <View style={styles.poster}>
-                    <View style={styles.posterAvatar}>
+                    <View>
+                            {user.avatar
+                                ? <Image style={styles.userAvatar} source={{ uri: user.avatar }} />
+                                : <Image style={styles.avatarDefault}
+                                    source={require('../../assets/image/avatar_default5.png')} />}
                     </View>
                     <View>
-                        <Text>Nguyen Thi Hoai Thuong</Text>
-                        <Text>Ngay dang: 1/1/2021</Text>
+                        <Text>{user.name}</Text>
+                        <Text>Ngày đăng: {new Date(recipe?.createdAt?.toDate()).toLocaleDateString()}</Text>
                     </View>
                 </View>
+                
+                <View>
+                <Text style={styles.titleDes}>
+                    Mô tả
+                </Text>
+                <Text style={styles.text}>{recipe.description}</Text>
+                </View>
+               
+
                 <Text style={styles.title}>Các thành phần</Text>
                 <ScrollView horizontal>
                     {renderListIngredients()}
@@ -305,7 +345,7 @@ const DetailScreen = ({ route, navigation }) => {
 
 
                 {
-                    checkStatus
+                    checkStatus & isAdmin
                         ? <View style={styles.buttonGroup}>
                             <Button
                                 title="Duyệt bài"
@@ -420,11 +460,31 @@ const styles = StyleSheet.create({
         top: 0,
     },
 
+    userAvatar: {
+        width: 50,
+        height: 50,
+        borderRadius: 100,
+        marginRight: 15,
+    },
+    avatarDefault: {
+        width: 50,
+        height: 50,
+        borderRadius: 100,
+        marginRight: 15,
+    },
+
     title: {
         fontSize: 18,
         fontWeight: '600',
         color: '#222',
         marginVertical: 10,
+    },
+    titleDes: {
+        fontSize: 18,
+        fontWeight: '600',
+        color: '#222',
+        marginBottom: 3,
+        marginTop: 25,
     },
     itemTitle: {
         fontSize: 15,
@@ -458,18 +518,12 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
     },
-    posterAvatar: {
-        width: 60,
-        height: 60,
-        borderRadius: 100,
-        backgroundColor: '#e4e6eb',
-        marginRight: 15,
-    },
+    
     rate: {
         alignItems: 'center',
         justifyContent: 'space-between',
         width: 300,
-        height: 300,
+        height: 320,
     },
     titleRate: {
         fontSize: 16,

@@ -396,7 +396,7 @@ const CreateRecipeScreen = ({ navigation }) => {
             return <View key={step.id}>
                 <TextInput
                     style={[styles.input, styles.stepNameInput, showValidationMessage('isValidStep') ? styles.borderInputError : null]}
-                    placeholder={`Buoc ${indexStep + 1}: ...`}
+                    placeholder={`Bước ${indexStep + 1}: ...`}
                     onChangeText={(value) => updateStepName(value, step.id)}
                     onEndEditing={(e) => handleValidStep(e.nativeEvent.text)}
                 />
@@ -460,10 +460,21 @@ const CreateRecipeScreen = ({ navigation }) => {
                                         selectedValue={category}
                                         style={styles.pickerCategory}
                                         onValueChange={onChangeCategory}                                    >
-                                        <Picker.Item label="Món hấp" value="Món hấp" />
-                                        <Picker.Item label="Món luộc" value="Món luộc" />
-                                        <Picker.Item label="Món xào" value="Món xào" />
+                                        <Picker.Item label="Ăn sáng" value="Ăn sáng" />
+                                        <Picker.Item label="Ăn chính" value="Ăn chính" />
+                                        <Picker.Item label="Nhanh-Dễ" value="Nhanh-Dễ" />
+                                        <Picker.Item label="Ăn vặt" value="Ăn vặt" />
+                                        <Picker.Item label="Thức uống" value="Thức uống" />
+                                        <Picker.Item label="Bún-Mì-Phở" value="Bún-Mì-Phở" />
+                                        <Picker.Item label="Salad" value="Salad" />
+                                        <Picker.Item label="Healthy" value="Healthy" />
+                                        <Picker.Item label="Món chay" value="Món chay" />
+                                        <Picker.Item label="Nước chấm" value="Nước chấm" />
+                                        <Picker.Item label="Lẩu" value="Lẩu" />
+                                        <Picker.Item label="Snacks" value="Snacks" />
+                                        <Picker.Item label="Làm bánh" value="Làm bánh" />
                                         <Picker.Item label="Món chiên" value="Món chiên" />
+                                        <Picker.Item label="Món kho" value="Món kho" />
                                         <Picker.Item label="Khác" value="Khác" />
 
                                     </Picker>
@@ -569,12 +580,13 @@ const styles = StyleSheet.create({
         paddingLeft: 3,
     },
     input: {
-        height: 40,
+        height: 45,
         marginBottom: 15,
-        paddingHorizontal: 20,
+        paddingHorizontal: 18,
         borderRadius: 10,
         backgroundColor: '#f0f2f1',
         marginHorizontal: 3,
+        alignItems: 'center',
 
     },
     textArea: {
@@ -595,14 +607,14 @@ const styles = StyleSheet.create({
     dropdownCategory: {
         backgroundColor: '#f0f2f1',
         borderRadius: 10,
-        width: 345,
+        width: 365,
         height: 40,
         justifyContent: 'center',
         marginLeft: 5,
         
     },
     pickerCategory: {
-        height: 50,
+        height:50,
         width: '100%',
         color: '#000'
 
@@ -640,7 +652,7 @@ const styles = StyleSheet.create({
         flex: 1,
         flexDirection: 'row',
         justifyContent: 'space-between',
-        marginLeft: -5,
+        marginLeft: -18,
         marginRight: 10,
     },
     flexColumn: {
@@ -653,8 +665,7 @@ const styles = StyleSheet.create({
         width: '85%',
     },
     ingredientAmountInput: {
-        width: '50%',
-        marginLeft: 10,
+        width: '85%',
     },
 
     deleteButton: {

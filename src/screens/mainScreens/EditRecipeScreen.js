@@ -381,7 +381,7 @@ const EditRecipeScreen = ({ route, navigation }) => {
                             <TextInput
                                 defaultValue={ingredient.name}
                                 style={[styles.input, styles.ingredientNameInput, showValidationMessage('isValidIngredientName') ? styles.borderInputErrIngredient : null]}
-                                placeholder='vd: Rau xanh'
+                                placeholder='Ví dụ: Rau xanh'
                                 onChangeText={(value) => updateIngredientName(value, ingredient.id)}
                                 onEndEditing={(e) => handleValidIngredientName(e.nativeEvent.text)}
                             />
@@ -393,7 +393,7 @@ const EditRecipeScreen = ({ route, navigation }) => {
                             <TextInput
                                 defaultValue={ingredient.amount}
                                 style={[styles.input, styles.ingredientAmountInput, showValidationMessage('isValidIngredientAmount') ? styles.borderInputErrIngredient : null]}
-                                placeholder='vd: 1kg'
+                                placeholder='Ví dụ: 1kg'
                                 onChangeText={(value) => updateIngredientAmount(value, ingredient.id)}
                                 onEndEditing={(e) => handleValidIngredientAmount(e.nativeEvent.text)}
                             />
@@ -435,7 +435,7 @@ const EditRecipeScreen = ({ route, navigation }) => {
                 <TextInput
                     defaultValue={step.step}
                     style={[styles.input, styles.stepNameInput, showValidationMessage('isValidStep') ? styles.borderInputError : null]}
-                    placeholder={`Buoc ${indexStep + 1}: ...`}
+                    placeholder={`Bước ${indexStep + 1}: ...`}
                     onChangeText={(value) => updateStepName(value, step.id)}
                     onEndEditing={(e) => handleValidStep(e.nativeEvent.text)}
                 />
@@ -608,7 +608,7 @@ const styles = StyleSheet.create({
         paddingLeft: 3,
     },
     input: {
-        height: 40,
+        height: 45,
         marginBottom: 15,
         paddingHorizontal: 20,
         borderRadius: 10,
@@ -634,7 +634,7 @@ const styles = StyleSheet.create({
     dropdownCategory: {
         backgroundColor: '#f0f2f1',
         borderRadius: 10,
-        width: 345,
+        width: 370,
         height: 40,
         justifyContent: 'center'
     },
@@ -677,7 +677,7 @@ const styles = StyleSheet.create({
         flex: 1,
         flexDirection: 'row',
         justifyContent: 'space-between',
-        marginLeft: -5,
+        marginLeft: -18,
         marginRight: 10,
     },
     flexColumn: {
@@ -690,8 +690,7 @@ const styles = StyleSheet.create({
         width: '85%',
     },
     ingredientAmountInput: {
-        width: '50%',
-        marginLeft: 10,
+        width: '85%',
     },
 
     deleteButton: {

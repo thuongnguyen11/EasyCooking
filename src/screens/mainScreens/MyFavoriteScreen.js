@@ -74,7 +74,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
     },
     title: {
-        fontSize: 36,
+        fontSize: 30,
         fontWeight: '500',
         color: '#029c59',
         textShadowColor: 'rgba(130, 237, 191, 0.9)',

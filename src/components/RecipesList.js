@@ -33,7 +33,7 @@ const RecipesList = ({ onPress, recipes, favorites, loading, onEdit, onDelete}) 
             }
             {
                 !loading && recipes && recipes.length === 0
-                    ? <Text style={{ width: '100%', height: '100%', textAlign: 'center', textAlignVertical: 'center' }}>Khong tim thay ket qua</Text>
+                    ? <Text style={{ width: '100%', height: '100%', textAlign: 'center', textAlignVertical: 'center' }}>Không tìm thấy kết quả</Text>
                     : <ScrollView
                         horizontal
                         pagingEnabled
@@ -60,7 +60,8 @@ export default RecipesList;
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        minHeight: 100
+        minHeight: 100,
+        paddingBottom: 50,
     },
     title: {
         fontSize: 18,

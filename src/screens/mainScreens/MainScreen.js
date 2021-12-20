@@ -58,7 +58,7 @@ const MainScreen = () => {
 
         const user = auth().currentUser;
         const subscriber = firestore()
-            .collection('users')
+            .collection('users') 
             .doc(user.uid)
             .onSnapshot(documentSnapshot => {
                 if (!!documentSnapshot) {
@@ -79,7 +79,6 @@ const MainScreen = () => {
                 ListFooterComponent={
                     <>
                         <View style={styles.titleGroup}>
-                            {/* <Text style={styles.title}>Bạn muốn nấu món gì?</Text> */}
                             <View style={styles.titleIconCooking}>
                                 <Image source={require('../../assets/image/logo4.png')} style={{
                                     width: 180,
@@ -134,6 +133,7 @@ const styles = StyleSheet.create({
 
     },
     titleRecipesList: {
+        marginTop: 35,
         color: themes.colors.main,
         fontSize: 20,
         fontWeight: '600',

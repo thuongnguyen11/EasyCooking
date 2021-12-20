@@ -316,6 +316,7 @@ export const getNotifications = async (onGetNotificationSuccess) => {
     const user = auth().currentUser;
     const snapshot = await firestore().collection(COLLECTION_NAME.NOTIFICATIONS)
         .where('uid', '==', user.uid)
+        .orderBy('createdAt', 'desc')
         .get();
 
     onGetNotificationSuccess(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
@@ -336,12 +337,17 @@ export const deleteRecipeItem = async (recipeId, onDeleteRecipeItemSuccess) => {
     onDeleteRecipeItemSuccess();
 }
 
-export const getPopularRecipes = async (onGetPopularRecipes)  => {
+export const getPopularRecipes = async (onGetPopularRecipes) => {
     const snapshot = await firestore().collection(COLLECTION_NAME.RECIPES)
         .where('status', '==', RECIPE_STATUS.APPROVED)
         .orderBy('avgStar', 'desc')
-        .limit(15)
+        .limit(9)
         .get();
-        onGetPopularRecipes(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+    onGetPopularRecipes(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
 
+}
+
+export const getOwnerRecipe = async (uid, onGetOwnerRecipeSuccess) => {
+    const user = await firestore().collection(COLLECTION_NAME.USERS).doc(uid).get();
+    onGetOwnerRecipeSuccess(user.data());
 }

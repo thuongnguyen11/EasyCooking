@@ -63,7 +63,7 @@ const styles = StyleSheet.create({
     },
     titleItem: {
         color: themes.colors.text,
-        fontSize: 17,
+        fontSize: 16,
         fontWeight: '600',
     },
     itemContainer: {

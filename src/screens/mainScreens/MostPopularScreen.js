@@ -7,7 +7,7 @@ import auth from '@react-native-firebase/auth';
 
 import RecipesList from "../../components/RecipesList";
 import themes from '../../config/themes';
-import { getApprovedRecipes } from "../../apis/FoodRecipeApi";
+import { getApprovedRecipes, getPopularRecipes } from "../../apis/FoodRecipeApi";
 import { removeVietnameseTones } from "../../global/utilities";
 
 const MostPopularScreen = ({ navigation }) => {
@@ -40,7 +40,7 @@ const MostPopularScreen = ({ navigation }) => {
 
     const fetchRecipes = () => {
         setLoading(true);
-        getApprovedRecipes((data) => {
+        getPopularRecipes((data) => {
             setRecipes(data);
             setLoading(false);
         });
@@ -79,7 +79,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
     },
     title: {
-        fontSize: 36,
+        fontSize: 30,
         fontWeight: '500',
         color: '#029c59',
         textShadowColor: 'rgba(130, 237, 191, 0.9)',
