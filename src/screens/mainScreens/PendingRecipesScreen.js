@@ -60,7 +60,8 @@ const PendingRecipesScreen = ({ route, navigation }) => {
                 ListFooterComponent={
                     <>
                         <View style={styles.titleGroup}>
-                            <Text style={styles.title}>Danh sách chờ phê duyệt</Text>
+                            <Text style={styles.title}>Danh sách chờ</Text>
+                            <Text style={styles.title}> phê duyệt</Text>
                         </View>
                         <RecipesList onPress={onPressItem} recipes={recipes} favorites={favorites} loading={loading} />
                     </>
@@ -81,8 +82,8 @@ const styles = StyleSheet.create({
         backgroundColor: '#FFF',
     },
     titleGroup: {
-        flexDirection: 'row',
     },
+
     title: {
         fontSize: 30,
         fontWeight: '500',
@@ -90,9 +91,9 @@ const styles = StyleSheet.create({
         textShadowColor: 'rgba(130, 237, 191, 0.9)',
         textShadowOffset: { width: 2, height: 2 },
         textShadowRadius: 7,
-        marginBottom: 10,
         textAlign: 'center',
         flex: 1,
+        lineHeight:30,
     },
     container: {
         flex: 1,
