@@ -21,33 +21,12 @@ const SignInScreen = ({ navigation, onSignIn }) => {
     const [data, setData] = React.useState({
         email: '',
         password: '',
-        check_textInputChange: false,
         secureTextEntry: true,
         isValidUser: true,
         isValidPassword: true,
     });
 
     const { colors } = useTheme();
-
-    const textInputChange = (val) => {
-        if (val.trim().length >= 4) {
-            setData({
-                ...data,
-                email: val,
-                check_textInputChange: true,
-                isValidUser: true
-            });
-        } else {
-            setData({
-                ...data,
-                email: val,
-                check_textInputChange: false,
-                isValidUser: false
-            });
-        }
-
-    }
-    
 
     const handlePasswordChange = (val) => {
         if (val.trim().length >= 6) {
@@ -73,14 +52,22 @@ const SignInScreen = ({ navigation, onSignIn }) => {
     }
 
     const handleValidUser = (val) => {
-        if (val.trim().length >= 4) {
+        const validEmail = String(val)
+            .toLowerCase()
+            .match(
+                /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+            );
+
+        if (validEmail) {
             setData({
                 ...data,
+                email: val,
                 isValidUser: true
             });
         } else {
             setData({
                 ...data,
+                email: val,
                 isValidUser: false
             });
         }
@@ -114,8 +101,7 @@ const SignInScreen = ({ navigation, onSignIn }) => {
                             color: colors.text
                         }]}
                         autoCapitalize="none"
-                        onChangeText={(val) => textInputChange(val)}
-                        onEndEditing={(e) => handleValidUser(e.nativeEvent.text)}
+                        onChangeText={(val) => handleValidUser(val)}
                     />
                     {data.check_textInputChange ?
                         <Animatable.View
@@ -131,7 +117,7 @@ const SignInScreen = ({ navigation, onSignIn }) => {
                 </View>
                 {data.isValidUser ? null :
                     <Animatable.View animation="fadeInLeft" duration={500}>
-                        <Text style={styles.errorMsg}>Email phải lớn hơn 10 ký tự.</Text>
+                        <Text style={styles.errorMsg}>Địa chỉ email không hợp lệ!</Text>
                     </Animatable.View>
                 }
 
@@ -187,12 +173,15 @@ const SignInScreen = ({ navigation, onSignIn }) => {
                 <View style={styles.button}>
                     <TouchableOpacity
                         style={styles.signIn}
-                        onPress={() => { onSignIn(data.email, data.password) 
-                            console.log(data.email, data.password)
+                        onPress={() => {
+                            if (data.isValidUser && data.isValidPassword) {
+                                onSignIn(data.email, data.password)
+                                console.log(data.email, data.password)
+                            }
                         }}
                     >
                         <LinearGradient
-                            colors={['#23de8d', '#018f52']}
+                            colors={['#23de8d', '#018f52']}tự
                             style={styles.signIn}
                         >
                             <Text style={[styles.textSign, {

@@ -20,39 +20,65 @@ const SignInScreen = ({ navigation, onCreateUser }) => {
         username: '',
         password: '',
         confirm_password: '',
-        check_textInputChange: false,
+        isValidUser: true,
+        isValidPassword: true,
+        isValidConfirmPassword: true,
         secureTextEntry: true,
         confirm_secureTextEntry: true,
     });
 
-    const textInputChange = (val) => {
-        if (val.length !== 0) {
+    const handleValidUser = (val) => {
+        const validEmail = String(val)
+            .toLowerCase()
+            .match(
+                /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+            );
+
+        if (validEmail) {
             setData({
                 ...data,
-                username: val,
-                check_textInputChange: true
+                email: val,
+                isValidUser: true
             });
         } else {
             setData({
                 ...data,
-                username: val,
-                check_textInputChange: false
+                email: val,
+                isValidUser: false
             });
         }
     }
 
     const handlePasswordChange = (val) => {
-        setData({
-            ...data,
-            password: val
-        });
+        if (val.trim().length >= 6) {
+            setData({
+                ...data,
+                password: val,
+                isValidPassword: true
+            });
+        } else {
+            setData({
+                ...data,
+                password: val,
+                isValidPassword: false
+            });
+        }
     }
 
     const handleConfirmPasswordChange = (val) => {
-        setData({
-            ...data,
-            confirm_password: val
-        });
+        if (val.trim() === data.password.trim()) {
+            setData({
+                ...data,
+                confirm_password: val,
+                isValidConfirmPassword: true
+            });
+        } else {
+            setData({
+                ...data,
+                confirm_password: val,
+                isValidConfirmPassword: false
+            });
+        }
     }
 
     const updateSecureTextEntry = () => {
@@ -91,7 +117,7 @@ const SignInScreen = ({ navigation, onCreateUser }) => {
                             placeholder="Nhập email"
                             style={styles.textInput}
                             autoCapitalize="none"
-                            onChangeText={(val) => textInputChange(val)}
+                            onChangeText={(val) => handleValidUser(val)}
                         />
                         {data.check_textInputChange ?
                             <Animatable.View
@@ -105,6 +131,11 @@ const SignInScreen = ({ navigation, onCreateUser }) => {
                             </Animatable.View>
                             : null}
                     </View>
+                    {data.isValidUser ? null :
+                        <Animatable.View animation="fadeInLeft" duration={500}>
+                            <Text style={styles.errorMsg}>Địa chỉ email không hợp lệ!</Text>
+                        </Animatable.View>
+                    }
 
                     <Text style={[styles.text_footer, {
                         marginTop: 35
@@ -140,6 +171,11 @@ const SignInScreen = ({ navigation, onCreateUser }) => {
                             }
                         </TouchableOpacity>
                     </View>
+                    {data.isValidPassword ? null :
+                        <Animatable.View animation="fadeInLeft" duration={500}>
+                            <Text style={styles.errorMsg}>Mật khẩu phải từ 6 kí tự trở lên.</Text>
+                        </Animatable.View>
+                    }
 
                     <Text style={[styles.text_footer, {
                         marginTop: 35
@@ -175,11 +211,20 @@ const SignInScreen = ({ navigation, onCreateUser }) => {
                             }
                         </TouchableOpacity>
                     </View>
-                    
+                    {data.isValidConfirmPassword ? null :
+                        <Animatable.View animation="fadeInLeft" duration={500}>
+                            <Text style={styles.errorMsg}>Mật khẩu không khớp</Text>
+                        </Animatable.View>
+                    }
+
                     <View style={styles.button}>
                         <TouchableOpacity
                             style={styles.signIn}
-                            onPress={() => { onCreateUser(data.username, data.password) }}
+                            onPress={() => {
+                                if (data.isValidUser && data.isValidPassword) {
+                                    onCreateUser(data.username, data.password)
+                                }
+                            }}
                         >
                             <LinearGradient
                                 colors={['#23de8d', '#018f52']}
@@ -275,5 +320,9 @@ const styles = StyleSheet.create({
     },
     color_textPrivate: {
         color: 'grey'
-    }
+    },
+    errorMsg: {
+        color: '#FF0000',
+        fontSize: 14,
+    },
 });
